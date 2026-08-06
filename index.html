@@ -3,91 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Business Ledger</title>
+<title>Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #20261F;
-    --bg: #EFF1EE;
-    --header: #1E3A2B;
-    --headertext: #F2F5EF;
-    --muted: #5A6B58;
-    --line: #D8DED6;
+    --ink: #211C14;
+    --bg: #F7F2E8;
+    --paper: #FFFFFF;
+    --accent: #E1873F;
+    --accent-deep: #A85D22;
+    --accent-pale: #F6DFBC;
+    --headertext: #211C14;
+    --muted: #85795F;
+    --line: #E6DCC5;
     --card: #FFFFFF;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, "Segoe UI", system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
+  .serif { font-family: 'Fraunces', Georgia, serif; }
   .app { max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: 92px; position: relative; }
   .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-  .header { padding: 20px 18px 14px; background: var(--header); color: var(--headertext); }
-  .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.75; }
+  .header { padding: 22px 18px 16px; background: var(--bg); color: var(--headertext); border-bottom: 1px solid var(--line); }
+  .header-brand { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+  .header-brand .dot { color: var(--accent); }
+  .eyebrow { font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-deep); font-weight: 700; }
   .header-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px; }
-  .header-sub { font-size: 12px; opacity: 0.7; }
-  .header-big { font-size: 30px; font-weight: 700; }
-  .header-small { font-size: 18px; font-weight: 600; text-align: right; }
-  .card { background: var(--card); border-radius: 10px; box-shadow: 0 1px 3px rgba(30,58,43,0.10); margin: 10px 12px; overflow: hidden; padding: 14px; }
+  .header-sub { font-size: 12px; color: var(--muted); }
+  .header-big { font-size: 32px; font-weight: 600; }
+  .header-small { font-size: 18px; font-weight: 600; text-align: right; color: var(--accent-deep); }
+  .ledger-rule { height: 3px; margin-top: 16px; border-radius: 3px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-pale) 100%); }
+  .card { background: var(--paper); border-radius: 12px; border: 1px solid var(--line); margin: 10px 12px; overflow: hidden; padding: 14px; }
   .row { display: flex; gap: 8px; }
   input, select {
     width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 8px;
-    border: 1px solid #C9D1C6; font-size: 16px; background: #FBFCFA; color: var(--ink); margin-bottom: 10px;
+    border: 1px solid var(--line); font-size: 16px; background: #FFFEFB; color: var(--ink); margin-bottom: 10px;
   }
   label.field-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
-  .btn-primary { background: var(--header); color: var(--headertext); border: none; border-radius: 8px; padding: 13px 18px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; }
-  .btn-ghost { background: transparent; color: var(--header); border: 1px solid var(--header); border-radius: 8px; padding: 12px 18px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; }
-  .btn-danger { border-color: #B04A5A; color: #B04A5A; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%); color: #241505; border: none; border-radius: 10px; padding: 13px 18px; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; }
+  .btn-ghost { background: transparent; color: var(--accent-deep); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; }
+  .btn-danger { border-color: #C0522A; color: #C0522A; }
   .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; }
-  .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid #C9D1C6; background: #FFF; color: #3A463A; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; flex-shrink: 0; }
-  .chip.active { border-color: var(--header); background: var(--header); color: var(--headertext); }
-  .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid var(--line); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 14px; z-index: 30; }
-  .navbtn { background: none; border: none; font-size: 13px; color: #7A857A; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 10px; }
-  .navbtn.active { font-weight: 700; color: var(--header); }
-  .fab { background: var(--header); color: var(--headertext); border: none; border-radius: 50%; width: 58px; height: 58px; font-size: 26px; font-weight: 300; cursor: pointer; box-shadow: 0 3px 8px rgba(30,58,43,0.35); margin-top: -26px; }
-  .overlay { position: fixed; inset: 0; background: rgba(20,28,20,0.55); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
-  .sheet { background: #F6F8F4; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; border-radius: 16px 16px 0 0; padding: 18px 16px 30px; }
+  .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: #FFF; color: #5C523E; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; flex-shrink: 0; }
+  .chip.active { border-color: var(--accent-deep); background: var(--accent-pale); color: var(--accent-deep); }
+  .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--paper); border-top: 1px solid var(--line); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 14px; z-index: 30; }
+  .navbtn { background: none; border: none; font-size: 13px; color: #A99C7E; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 10px; }
+  .navbtn.active { font-weight: 700; color: var(--accent-deep); }
+  .fab { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%); color: #241505; border: none; border-radius: 50%; width: 58px; height: 58px; font-size: 26px; font-weight: 400; cursor: pointer; box-shadow: 0 4px 12px rgba(168,93,34,0.35); margin-top: -26px; }
+  .overlay { position: fixed; inset: 0; background: rgba(33,26,15,0.55); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: #FBF7EC; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; border-radius: 16px 16px 0 0; padding: 18px 16px 30px; }
   .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .sheet-title { font-size: 19px; font-weight: 800; }
   .closebtn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); }
   .leader { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; }
-  .dots { flex: 1; border-bottom: 2px dotted #B9C4B6; transform: translateY(-4px); }
+  .dots { flex: 1; border-bottom: 2px dotted #D9CBA9; transform: translateY(-4px); }
   .cat-badge { padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 12.5px; }
-  .empty { text-align: center; padding: 50px 30px; color: #7A857A; }
+  .empty { text-align: center; padding: 50px 30px; color: #8B7F65; }
   .empty-icon { font-size: 40px; margin-bottom: 10px; }
-  .empty-title { font-weight: 700; font-size: 17px; color: #3A463A; }
-  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #20261F; color: #F2F5EF; padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; z-index: 90; white-space: nowrap; }
-  .bar-bg { height: 5px; background: #EAEEE8; border-radius: 3px; margin-bottom: 8px; }
+  .empty-title { font-weight: 700; font-size: 17px; color: #2B2417; }
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #2B2013; color: #F7EFDF; padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; z-index: 90; white-space: nowrap; max-width: 90%; text-align: center; }
+  .bar-bg { height: 5px; background: #EFE7D2; border-radius: 3px; margin-bottom: 8px; }
   .bar-fg { height: 5px; border-radius: 3px; }
   .receipt-img { width: 100%; border-radius: 10px; display: block; margin-bottom: 12px; }
   .photo-wrap { position: relative; margin-bottom: 12px; }
   .retake-btn { position: absolute; bottom: 10px; right: 10px; }
-  .scan-overlay { position: absolute; inset: 0; background: rgba(30,58,43,0.6); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #F2F5EF; font-weight: 700; }
+  .scan-overlay { position: absolute; inset: 0; background: rgba(33,26,15,0.6); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #F2F5EF; font-weight: 700; }
   .search-row { display: flex; gap: 8px; margin: 12px 12px 0; }
   .search-row input { margin-bottom: 0; flex: 1; }
-  .small-note { font-size: 12.5px; color: #7A857A; text-align: center; margin-top: 8px; }
+  .small-note { font-size: 12.5px; color: #8B7F65; text-align: center; margin-top: 8px; }
   .link-btn { background: none; border: none; color: var(--header); font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 14px; padding: 0; }
+  .center-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 30px; }
+  .error-text { color: #B04A5A; font-size: 13.5px; margin: -4px 0 10px; }
+  .lock-icon { font-size: 40px; margin-bottom: 6px; }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
 
 <script>
-// ---------------- storage ----------------
-const LS_KEYS = { expenses: "bl_expenses", trips: "bl_trips", apiKey: "bl_apikey" };
+// ---------------- Supabase config ----------------
+const SUPABASE_URL = "https://uqpxtjizexuttoidrzgm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_a9rLzqvYPdR0_XHpvy-P8A_ZtyE1F9r";
 
-function load(key, fallback) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-  catch { return fallback; }
-}
-function save(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
-  catch (e) { console.error(e); return false; }
-}
+// ---------------- local (device-only) storage: session + your own AI key ----------------
+function loadLocal(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } }
+function saveLocal(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } }
 
 // ---------------- constants ----------------
 const CATEGORIES = ["Meals","Travel","Lodging","Supplies","Equipment","Software & Subscriptions","Marketing & Ads","Production & Props","Shipping","Fees & Services","Other"];
 const CAT_COLORS = { "Meals":"#C77B3F","Travel":"#3F7BC7","Lodging":"#7B5EA7","Supplies":"#5E8C61","Equipment":"#4A6670","Software & Subscriptions":"#356E6A","Marketing & Ads":"#B04A5A","Production & Props":"#8A6D3B","Shipping":"#6B7A8F","Fees & Services":"#5C5470","Other":"#777777" };
+const EXTRA_CAT_PALETTE = ["#B9762C","#3E6E8C","#6B5FA8","#4F7A5C","#A8543F","#5C7A3E","#8C4F7A","#3F7A72","#A87F2C"];
+function allCategoryNames() { return CATEGORIES.concat(state.categories.map(c => c.name)); }
+function getCatColor(name) {
+  if (CAT_COLORS[name]) return CAT_COLORS[name];
+  const idx = state.categories.findIndex(c => c.name === name);
+  if (idx === -1) return "#777777";
+  return EXTRA_CAT_PALETTE[idx % EXTRA_CAT_PALETTE.length];
+}
 const fmt = (n) => Number(n||0).toLocaleString("en-US",{style:"currency",currency:"USD"});
 const todayISO = () => new Date().toISOString().slice(0,10);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -95,26 +112,187 @@ const esc = (s) => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">"
 
 // ---------------- state ----------------
 let state = {
-  expenses: load(LS_KEYS.expenses, []),
-  trips: load(LS_KEYS.trips, []),
-  apiKey: load(LS_KEYS.apiKey, ""),
+  session: loadLocal("bl_session", null), // {access_token, refresh_token, expires_at, email}
+  authMode: "signin", // 'signin' | 'signup'
+  authError: "",
+  authBusy: false,
+  expenses: [],
+  trips: [],
+  categories: [], // custom categories, [{id, name}]
+  apiKey: loadLocal("bl_apikey", ""),
+  dataLoaded: false,
   tab: "expenses",
-  sheet: null,       // {mode, expense}
-  tripSheet: null,   // {trip}
-  detail: null,      // expense
+  sheet: null,
+  tripSheet: null,
+  detail: null,
   openTripId: null,
+  attachSheet: null, // {tripId, checked: Set, search: ""}
   fCat: "All", fTrip: "All", fFrom: "", fTo: "", search: "",
   showFilters: false,
   summaryYear: null,
   toast: "",
 };
 
-function persistExpenses() { const ok = save(LS_KEYS.expenses, state.expenses); if (!ok) showToast("Storage full — export a backup and delete old photos"); }
-function persistTrips() { save(LS_KEYS.trips, state.trips); }
-
 function showToast(msg) {
   state.toast = msg; render();
-  setTimeout(() => { state.toast = ""; render(); }, 2600);
+  setTimeout(() => { state.toast = ""; render(); }, 2800);
+}
+
+// ---------------- auth ----------------
+async function ensureAccessToken() {
+  if (!state.session) return null;
+  const bufferMs = 60000;
+  if (state.session.expires_at && Date.now() < state.session.expires_at - bufferMs) {
+    return state.session.access_token;
+  }
+  // refresh
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+      body: JSON.stringify({ refresh_token: state.session.refresh_token }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || "refresh failed");
+    state.session = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: Date.now() + (data.expires_in * 1000),
+      email: state.session.email,
+    };
+    saveLocal("bl_session", state.session);
+    return state.session.access_token;
+  } catch {
+    state.session = null;
+    saveLocal("bl_session", null);
+    return null;
+  }
+}
+
+async function signIn(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || "Sign in failed");
+  state.session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + data.expires_in*1000, email };
+  saveLocal("bl_session", state.session);
+}
+
+async function signUp(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || "Sign up failed");
+  if (data.access_token) {
+    state.session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + data.expires_in*1000, email };
+    saveLocal("bl_session", state.session);
+  } else {
+    // email confirmation required
+    throw new Error("CONFIRM_EMAIL");
+  }
+}
+
+function signOut() {
+  state.session = null; saveLocal("bl_session", null);
+  state.expenses = []; state.trips = []; state.dataLoaded = false;
+  render();
+}
+
+// ---------------- Supabase REST helpers ----------------
+async function sb(path, opts = {}) {
+  const token = await ensureAccessToken();
+  if (!token) { state.session = null; render(); throw new Error("signed-out"); }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(opts.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(()=> "");
+    throw new Error(`Request failed (${res.status}): ${text}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function rowToExpense(r) {
+  return { id: r.id, vendor: r.vendor || "", amount: Number(r.amount||0), date: r.date, category: r.category, tripId: r.trip_id || "", notes: r.notes || "", photo: r.photo || null };
+}
+function rowToTrip(r) {
+  return { id: r.id, name: r.name || "", start: r.start_date || "", end: r.end_date || "", purpose: r.purpose || "" };
+}
+function rowToCategory(r) { return { id: r.id, name: r.name }; }
+
+async function loadAllData() {
+  try {
+    const [expRows, tripRows, catRows] = await Promise.all([
+      sb("ledger_expenses?select=*&order=date.desc"),
+      sb("ledger_trips?select=*&order=created_at.desc"),
+      sb("ledger_categories?select=*&order=created_at.asc"),
+    ]);
+    state.expenses = (expRows||[]).map(rowToExpense);
+    state.trips = (tripRows||[]).map(rowToTrip);
+    state.categories = (catRows||[]).map(rowToCategory);
+    state.dataLoaded = true;
+  } catch (e) {
+    showToast("Couldn't load your data — check your connection");
+  }
+  render();
+}
+
+async function addCategoryRemote(name) {
+  const row = { id: uid(), name, created_at: new Date().toISOString() };
+  await sb("ledger_categories", { method: "POST", headers: { "Prefer": "return=minimal" }, body: JSON.stringify([row]) });
+  return { id: row.id, name };
+}
+async function deleteCategoryRemote(id) {
+  await sb(`ledger_categories?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+async function batchSetTripId(ids, tripId) {
+  if (!ids.length) return;
+  await sb(`ledger_expenses?id=in.(${ids.join(",")})`, {
+    method: "PATCH",
+    headers: { "Prefer": "return=minimal" },
+    body: JSON.stringify({ trip_id: tripId, updated_at: new Date().toISOString() }),
+  });
+}
+
+async function upsertExpenseRemote(exp) {
+  await sb("ledger_expenses?on_conflict=id", {
+    method: "POST",
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify([{
+      id: exp.id, vendor: exp.vendor, amount: exp.amount, date: exp.date,
+      category: exp.category, trip_id: exp.tripId || null, notes: exp.notes,
+      photo: exp.photo, updated_at: new Date().toISOString(),
+    }]),
+  });
+}
+async function deleteExpenseRemote(id) {
+  await sb(`ledger_expenses?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+async function upsertTripRemote(trip) {
+  await sb("ledger_trips?on_conflict=id", {
+    method: "POST",
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify([{
+      id: trip.id, name: trip.name, start_date: trip.start || null, end_date: trip.end || null,
+      purpose: trip.purpose, updated_at: new Date().toISOString(),
+    }]),
+  });
+}
+async function deleteTripRemote(id) {
+  await sb(`ledger_trips?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
 // ---------------- image compression ----------------
@@ -140,7 +318,7 @@ function compressImage(file, maxDim, quality) {
   });
 }
 
-// ---------------- optional AI receipt scan (uses the user's own key) ----------------
+// ---------------- optional AI receipt scan (uses your own Anthropic key, stays on this device) ----------------
 async function scanReceipt(dataUrl) {
   if (!state.apiKey) throw new Error("no-key");
   const base64 = dataUrl.split(",")[1];
@@ -190,29 +368,6 @@ function exportCSV(rows, filename) {
   URL.revokeObjectURL(url);
 }
 
-function exportBackup() {
-  const blob = new Blob([JSON.stringify({ expenses: state.expenses, trips: state.trips }, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `ledger-backup-${todayISO()}.json`; a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importBackup(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const parsed = JSON.parse(reader.result);
-      if (!Array.isArray(parsed.expenses) || !Array.isArray(parsed.trips)) throw new Error("bad shape");
-      state.expenses = parsed.expenses; state.trips = parsed.trips;
-      persistExpenses(); persistTrips();
-      showToast("Backup restored");
-      render();
-    } catch { showToast("That file doesn't look like a valid backup"); render(); }
-  };
-  reader.readAsText(file);
-}
-
 // ---------------- filtering ----------------
 function filteredExpenses() {
   return state.expenses.filter(e => {
@@ -225,9 +380,13 @@ function filteredExpenses() {
   }).sort((a,b) => a.date < b.date ? 1 : -1);
 }
 
-// ---------------- render ----------------
+// ---------------- render root ----------------
 function render() {
   const app = document.getElementById("app");
+
+  if (!state.session) { app.innerHTML = renderAuthScreen(); wireAuthHandlers(); return; }
+  if (!state.dataLoaded) { app.innerHTML = `<div class="center-screen"><div style="color:var(--muted);font-weight:600">Loading your ledger…</div></div>`; loadAllData(); return; }
+
   const year = new Date().getFullYear();
   const ytd = state.expenses.filter(e => (e.date||"").startsWith(String(year))).reduce((s,e)=>s+Number(e.amount||0),0);
   const filtered = filteredExpenses();
@@ -235,7 +394,8 @@ function render() {
 
   app.innerHTML = `
     <div class="header">
-      <div class="eyebrow">Business Ledger</div>
+      <div class="eyebrow">Personal Expense Ledger</div>
+      <div class="header-brand serif">Ledger<span class="dot">.</span></div>
       <div class="header-row">
         <div>
           <div class="header-sub">${year} year to date</div>
@@ -243,6 +403,7 @@ function render() {
         </div>
         ${state.tab === "expenses" ? `<div style="text-align:right"><div class="header-sub">${filtered.length} shown</div><div class="header-small mono">${fmt(filteredTotal)}</div></div>` : ""}
       </div>
+      <div class="ledger-rule"></div>
     </div>
     <div id="tabcontent"></div>
     <div class="nav">
@@ -267,6 +428,52 @@ function render() {
 
 function setTab(t) { state.tab = t; render(); }
 
+// ---------- auth screen ----------
+function renderAuthScreen() {
+  return `
+  <div class="center-screen">
+    <div class="lock-icon">🔒</div>
+    <div class="serif" style="font-size:24px;font-weight:600;margin-bottom:4px">Ledger</div>
+    <div style="font-size:13.5px;color:var(--muted);margin-bottom:22px;text-align:center">Your expenses are stored securely in the cloud, tied to your account.</div>
+    <div class="card" style="width:100%;max-width:340px;margin:0">
+      <label class="field-label">Email</label>
+      <input id="authEmail" type="email" autocapitalize="off" autocomplete="email" placeholder="you@example.com">
+      <label class="field-label">Password</label>
+      <input id="authPassword" type="password" autocomplete="${state.authMode==='signup'?'new-password':'current-password'}" placeholder="At least 6 characters">
+      ${state.authError ? `<div class="error-text">${esc(state.authError)}</div>` : ""}
+      <button class="btn-primary" id="authSubmit" ${state.authBusy?"disabled":""}>${state.authBusy ? "Please wait…" : (state.authMode==='signup' ? "Create account" : "Sign in")}</button>
+      <button class="link-btn" style="margin-top:14px;display:block;text-align:center;width:100%" id="authToggle">
+        ${state.authMode==='signup' ? "Already have an account? Sign in" : "New here? Create an account"}
+      </button>
+    </div>
+  </div>`;
+}
+
+function wireAuthHandlers() {
+  document.getElementById("authSubmit").onclick = async () => {
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value;
+    if (!email || !password) { state.authError = "Enter an email and password"; render(); return; }
+    state.authBusy = true; state.authError = ""; render();
+    try {
+      if (state.authMode === "signup") await signUp(email, password);
+      else await signIn(email, password);
+      state.authBusy = false;
+      render();
+    } catch (e) {
+      state.authBusy = false;
+      state.authError = e.message === "CONFIRM_EMAIL" ? "Account created — check your email to confirm, then sign in." : e.message;
+      if (e.message === "CONFIRM_EMAIL") state.authMode = "signin";
+      render();
+    }
+  };
+  document.getElementById("authToggle").onclick = () => {
+    state.authMode = state.authMode === "signup" ? "signin" : "signup";
+    state.authError = "";
+    render();
+  };
+}
+
 // ---------- expenses tab ----------
 function renderExpensesTab(filtered) {
   const activeFilters = (state.fCat!=="All") + (state.fTrip!=="All") + !!state.fFrom + !!state.fTo;
@@ -279,7 +486,7 @@ function renderExpensesTab(filtered) {
       <div class="card">
         <label class="field-label">Category</label>
         <div class="chip-row">
-          ${["All",...CATEGORIES].map(c=>`<button class="chip ${state.fCat===c?'active':''}" onclick="setFilter('fCat','${esc(c)}')">${esc(c)}</button>`).join("")}
+          ${["All",...allCategoryNames()].map(c=>`<button class="chip ${state.fCat===c?'active':''}" onclick="setFilter('fCat','${esc(c)}')">${esc(c)}</button>`).join("")}
         </div>
         <label class="field-label">Trip</label>
         <select id="tripFilter" onchange="setFilter('fTrip', this.value)">
@@ -309,7 +516,7 @@ function renderExpensesTab(filtered) {
           <div class="mono" style="font-weight:700;font-size:16px">${fmt(e.amount)}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--muted)">
-          <span class="cat-badge" style="background:${(CAT_COLORS[e.category]||'#777')}22;color:${CAT_COLORS[e.category]||'#555'}">${esc(e.category)}</span>
+          <span class="cat-badge" style="background:${getCatColor(e.category)}22;color:${getCatColor(e.category)}">${esc(e.category)}</span>
           <span class="mono">${e.date}</span>
           ${e.tripId ? `<span>· ${esc(tripName(e.tripId))}</span>` : ""}
           ${e.photo ? `<span>· 📷</span>` : ""}
@@ -325,11 +532,14 @@ function clearFilters() { state.fCat="All"; state.fTrip="All"; state.fFrom=""; s
 // ---------- expense sheet ----------
 let draftPhoto = null;
 let draftScanning = false;
+let selectedCategory = null;
+let savingExpense = false;
 
 function openExpenseSheet(id) {
   const exp = id ? state.expenses.find(e=>e.id===id) : null;
   draftPhoto = exp ? exp.photo : null;
   draftScanning = false;
+  selectedCategory = exp ? exp.category : "Meals";
   state.sheet = { mode: exp ? "edit" : "new", expense: exp };
   render();
 }
@@ -347,7 +557,7 @@ function renderExpenseSheet() {
   <div class="overlay" onclick="closeSheet()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-head">
-        <div class="sheet-title">${exp ? "Edit expense" : "New expense"}</div>
+        <div class="sheet-title serif">${exp ? "Edit expense" : "New expense"}</div>
         <button class="closebtn" onclick="closeSheet()">✕</button>
       </div>
       <input type="file" id="photoInput" accept="image/*" style="display:none">
@@ -363,19 +573,21 @@ function renderExpenseSheet() {
 
       <label class="field-label">Category</label>
       <div class="chip-row" id="catRow">
-        ${CATEGORIES.map(c=>`<button class="chip ${category===c?'active':''}" data-cat="${esc(c)}" onclick="pickCategory('${esc(c)}')">${esc(c)}</button>`).join("")}
+        ${allCategoryNames().map(c=>`<button class="chip ${category===c?'active':''}" data-cat="${esc(c)}" onclick="pickCategory('${esc(c)}')">${esc(c)}</button>`).join("")}
+        <button class="chip" onclick="quickAddCategory()">＋ New</button>
       </div>
 
       <label class="field-label">Trip (optional)</label>
-      <select id="fTripId">
+      <select id="fTripId" onchange="handleTripSelectChange(this)">
         <option value="">No trip</option>
         ${state.trips.map(t=>`<option value="${t.id}" ${tripId===t.id?"selected":""}>${esc(t.name)}</option>`).join("")}
+        <option value="__new__">＋ New trip…</option>
       </select>
 
       <label class="field-label">Notes</label>
       <input id="fNotes" value="${esc(notes)}" placeholder="What was it for?">
 
-      <button class="btn-primary" onclick="submitExpense()" ${draftScanning?"disabled":""}>${exp?"Save changes":"Save expense"}</button>
+      <button class="btn-primary" id="submitExpenseBtn" ${draftScanning||savingExpense?"disabled":""}>${savingExpense ? "Saving…" : (exp?"Save changes":"Save expense")}</button>
       ${exp ? `<button class="btn-ghost btn-danger" style="margin-top:10px" onclick="deleteExpense('${exp.id}')">Delete expense</button>` : ""}
 
       <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">
@@ -396,8 +608,40 @@ function renderPhotoArea() {
   return `<button class="btn-ghost" style="padding:22px;margin-bottom:12px" onclick="document.getElementById('photoInput').click()">📷 Add receipt photo</button>`;
 }
 
-let selectedCategory = null;
 function pickCategory(c) { selectedCategory = c; document.querySelectorAll('#catRow .chip').forEach(el=>el.classList.toggle('active', el.dataset.cat===c)); }
+
+async function quickAddCategory() {
+  const name = prompt("New category name:");
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (allCategoryNames().some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+    pickCategory(trimmed);
+    return;
+  }
+  try {
+    const cat = await addCategoryRemote(trimmed);
+    state.categories.push(cat);
+    document.getElementById("catRow").innerHTML = allCategoryNames().map(c=>`<button class="chip ${trimmed===c?'active':''}" data-cat="${esc(c)}" onclick="pickCategory('${esc(c)}')">${esc(c)}</button>`).join("") + `<button class="chip" onclick="quickAddCategory()">＋ New</button>`;
+    selectedCategory = trimmed;
+    showToast("Category added");
+  } catch { showToast("Couldn't add category — check your connection"); }
+}
+
+async function handleTripSelectChange(selectEl) {
+  if (selectEl.value !== "__new__") return;
+  const name = prompt("New trip name:");
+  if (!name || !name.trim()) { selectEl.value = ""; return; }
+  const trip = { id: uid(), name: name.trim(), start: "", end: "", purpose: "" };
+  try {
+    await upsertTripRemote(trip);
+    state.trips.unshift(trip);
+    const opt = document.createElement("option");
+    opt.value = trip.id; opt.textContent = trip.name;
+    selectEl.insertBefore(opt, selectEl.lastElementChild);
+    selectEl.value = trip.id;
+    showToast("Trip added");
+  } catch { showToast("Couldn't add trip — check your connection"); selectEl.value = ""; }
+}
 
 async function handlePhotoFile(file) {
   if (!file) return;
@@ -415,27 +659,17 @@ async function handlePhotoFile(file) {
         if (r.date) document.getElementById("fDate").value = r.date;
         if (r.category && CATEGORIES.includes(r.category)) pickCategory(r.category);
         if (r.notes) document.getElementById("fNotes").value = r.notes;
-        showToastQuiet("Receipt read — check the details");
+        showToast("Receipt read — check the details");
       } catch (e) {
-        showToastQuiet(state.apiKey ? "Couldn't read the receipt — enter details manually" : "");
+        showToast("Couldn't read the receipt — enter details manually");
       }
       draftScanning = false;
       document.getElementById("photoArea").innerHTML = renderPhotoArea();
     }
-  } catch { showToastQuiet("Couldn't load that photo"); }
-}
-function showToastQuiet(msg) { if(!msg) return; state.toast = msg; renderToastOnly(); setTimeout(()=>{ state.toast=""; renderToastOnly(); }, 2600); }
-function renderToastOnly() {
-  const existing = document.querySelector(".toast");
-  if (existing) existing.remove();
-  if (state.toast) {
-    const div = document.createElement("div");
-    div.className = "toast"; div.textContent = state.toast;
-    document.body.appendChild(div);
-  }
+  } catch { showToast("Couldn't load that photo"); }
 }
 
-function submitExpense() {
+async function submitExpense() {
   const vendor = document.getElementById("fVendor").value.trim();
   const amount = Number(document.getElementById("fAmount").value || 0);
   const date = document.getElementById("fDate").value || todayISO();
@@ -447,20 +681,29 @@ function submitExpense() {
     id: state.sheet.expense ? state.sheet.expense.id : uid(),
     vendor, amount, date, category, tripId, notes, photo: draftPhoto || null,
   };
-  const idx = state.expenses.findIndex(e => e.id === exp.id);
-  if (idx >= 0) state.expenses[idx] = exp; else state.expenses.unshift(exp);
-  persistExpenses();
-  selectedCategory = null;
-  state.sheet = null;
-  showToast(idx >= 0 ? "Expense updated" : "Expense saved");
+  savingExpense = true; render();
+  try {
+    await upsertExpenseRemote(exp);
+    const idx = state.expenses.findIndex(e => e.id === exp.id);
+    if (idx >= 0) state.expenses[idx] = exp; else state.expenses.unshift(exp);
+    selectedCategory = null; savingExpense = false;
+    state.sheet = null;
+    showToast(idx >= 0 ? "Expense updated" : "Expense saved");
+  } catch (e) {
+    savingExpense = false;
+    showToast("Couldn't save — check your connection and try again");
+    render();
+  }
 }
 
-function deleteExpense(id) {
+async function deleteExpense(id) {
   if (!confirm("Delete this expense and its receipt photo?")) return;
-  state.expenses = state.expenses.filter(e => e.id !== id);
-  persistExpenses();
-  state.sheet = null; state.detail = null;
-  showToast("Deleted");
+  try {
+    await deleteExpenseRemote(id);
+    state.expenses = state.expenses.filter(e => e.id !== id);
+    state.sheet = null; state.detail = null;
+    showToast("Deleted");
+  } catch { showToast("Couldn't delete — check your connection"); render(); }
 }
 
 // ---------- detail sheet ----------
@@ -474,7 +717,7 @@ function renderDetailSheet() {
   <div class="overlay" onclick="closeDetail()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-head">
-        <div class="sheet-title">${esc(e.vendor)||"Expense"}</div>
+        <div class="sheet-title serif">${esc(e.vendor)||"Expense"}</div>
         <button class="closebtn" onclick="closeDetail()">✕</button>
       </div>
       ${e.photo ? `<img class="receipt-img" src="${e.photo}">` : ""}
@@ -512,22 +755,85 @@ function renderTripsTab() {
           <span class="mono">${t.start||"?"} → ${t.end||"?"}</span> · ${tripCount(t.id)} expense${tripCount(t.id)===1?"":"s"}
         </div>
         ${state.openTripId===t.id ? `
-          <div style="margin-top:10px;border-top:1px solid #E4E9E2;padding-top:8px">
+          <div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
             ${state.expenses.filter(e=>e.tripId===t.id).map(e=>`
               <div class="leader" style="cursor:pointer" onclick="openDetail('${e.id}')">
                 <span style="font-size:14px;font-weight:600">${esc(e.vendor)||"Untitled"}</span>
                 <div class="dots"></div>
                 <span class="mono" style="font-size:14px;font-weight:700">${fmt(e.amount)}</span>
-              </div>`).join("") || `<div style="font-size:13.5px;color:#7A857A">No expenses attached yet.</div>`}
+              </div>`).join("") || `<div style="font-size:13.5px;color:#8B7F65">No expenses attached yet.</div>`}
             <div class="row" style="margin-top:10px">
+              <button class="btn-ghost" style="padding:9px;font-size:13.5px" onclick="openAttachSheet('${t.id}')">＋ Attach expenses</button>
               <button class="btn-ghost" style="padding:9px;font-size:13.5px" onclick="openTripSheet('${t.id}')">Edit trip</button>
+            </div>
+            <div class="row" style="margin-top:8px">
               <button class="btn-ghost btn-danger" style="padding:9px;font-size:13.5px" onclick="deleteTrip('${t.id}')">Delete trip</button>
             </div>
           </div>` : ""}
       </div>`).join("")}
+    ${state.attachSheet ? renderAttachSheet() : ""}
   `;
 }
 function toggleTripOpen(id) { state.openTripId = state.openTripId===id ? null : id; render(); }
+
+function openAttachSheet(tripId) {
+  const checked = new Set(state.expenses.filter(e => e.tripId === tripId).map(e => e.id));
+  state.attachSheet = { tripId, checked, search: "" };
+  render();
+}
+function closeAttachSheet() { state.attachSheet = null; render(); }
+function toggleAttachChecked(id) {
+  const s = state.attachSheet.checked;
+  if (s.has(id)) s.delete(id); else s.add(id);
+  render();
+}
+function setAttachSearch(v) { state.attachSheet.search = v; render(); }
+
+async function saveAttachSheet() {
+  const { tripId, checked } = state.attachSheet;
+  const wasIn = new Set(state.expenses.filter(e => e.tripId === tripId).map(e => e.id));
+  const toAdd = [...checked].filter(id => !wasIn.has(id));
+  const toRemove = [...wasIn].filter(id => !checked.has(id));
+  try {
+    await Promise.all([
+      toAdd.length ? batchSetTripId(toAdd, tripId) : Promise.resolve(),
+      toRemove.length ? batchSetTripId(toRemove, null) : Promise.resolve(),
+    ]);
+    state.expenses.forEach(e => {
+      if (toAdd.includes(e.id)) e.tripId = tripId;
+      if (toRemove.includes(e.id)) e.tripId = "";
+    });
+    state.attachSheet = null;
+    showToast("Trip updated");
+  } catch { showToast("Couldn't save — check your connection"); render(); }
+}
+
+function renderAttachSheet() {
+  const { tripId, checked, search } = state.attachSheet;
+  const trip = state.trips.find(t => t.id === tripId);
+  const list = state.expenses.filter(e => !search || ((e.vendor||"")+" "+(e.notes||"")).toLowerCase().includes(search.toLowerCase()));
+  return `
+  <div class="overlay" onclick="closeAttachSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-head">
+        <div class="sheet-title serif">Attach to ${esc(trip?trip.name:"trip")}</div>
+        <button class="closebtn" onclick="closeAttachSheet()">✕</button>
+      </div>
+      <input id="attachSearch" placeholder="Search expenses" value="${esc(search)}">
+      <div style="max-height:50vh;overflow-y:auto">
+        ${list.length===0 ? `<div style="font-size:13.5px;color:var(--muted);padding:10px 0">No expenses found.</div>` : list.map(e => `
+          <div class="leader" style="cursor:pointer" onclick="toggleAttachChecked('${e.id}')">
+            <span style="font-size:15px">${checked.has(e.id) ? "☑" : "☐"}</span>
+            <span style="font-size:14.5px;font-weight:600">${esc(e.vendor)||"Untitled"}</span>
+            <div class="dots"></div>
+            <span class="mono" style="font-size:14px;font-weight:700">${fmt(e.amount)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <button class="btn-primary" style="margin-top:14px" onclick="saveAttachSheet()">Save (${checked.size} attached)</button>
+    </div>
+  </div>`;
+}
 
 function openTripSheet(id) { const trip = id ? state.trips.find(t=>t.id===id) : null; state.tripSheet = { trip }; render(); }
 function closeTripSheet() { state.tripSheet = null; render(); }
@@ -537,7 +843,7 @@ function renderTripSheet() {
   return `
   <div class="overlay" onclick="closeTripSheet()">
     <div class="sheet" onclick="event.stopPropagation()">
-      <div class="sheet-title" style="margin-bottom:14px">${t?"Edit trip":"New trip"}</div>
+      <div class="sheet-title serif" style="margin-bottom:14px">${t?"Edit trip":"New trip"}</div>
       <label class="field-label">Trip name</label>
       <input id="tName" value="${t?esc(t.name):''}" placeholder="e.g. Miami shoot, March">
       <div class="row">
@@ -546,30 +852,35 @@ function renderTripSheet() {
       </div>
       <label class="field-label">Business purpose</label>
       <input id="tPurpose" value="${t?esc(t.purpose||''):''}" placeholder="Why the trip was for business">
-      <button class="btn-primary" onclick="submitTrip('${t?t.id:''}')">${t?"Save changes":"Create trip"}</button>
+      <button class="btn-primary" id="submitTripBtn">${t?"Save changes":"Create trip"}</button>
     </div>
   </div>`;
 }
-function submitTrip(id) {
+async function submitTrip(id) {
   const name = document.getElementById("tName").value.trim();
   if (!name) return;
   const start = document.getElementById("tStart").value;
   const end = document.getElementById("tEnd").value;
   const purpose = document.getElementById("tPurpose").value.trim();
   const trip = { id: id || uid(), name, start, end, purpose };
-  const idx = state.trips.findIndex(t=>t.id===trip.id);
-  if (idx>=0) state.trips[idx]=trip; else state.trips.unshift(trip);
-  persistTrips();
-  state.tripSheet = null;
-  showToast(idx>=0?"Trip updated":"Trip created");
+  document.getElementById("submitTripBtn").disabled = true;
+  try {
+    await upsertTripRemote(trip);
+    const idx = state.trips.findIndex(t=>t.id===trip.id);
+    if (idx>=0) state.trips[idx]=trip; else state.trips.unshift(trip);
+    state.tripSheet = null;
+    showToast(idx>=0?"Trip updated":"Trip created");
+  } catch { showToast("Couldn't save — check your connection"); render(); }
 }
-function deleteTrip(id) {
+async function deleteTrip(id) {
   const t = state.trips.find(x=>x.id===id);
   if (!confirm(`Delete trip "${t.name}"? Expenses will be kept, just unassigned.`)) return;
-  state.trips = state.trips.filter(x=>x.id!==id);
-  persistTrips();
-  state.openTripId = null;
-  showToast("Trip deleted");
+  try {
+    await deleteTripRemote(id);
+    state.trips = state.trips.filter(x=>x.id!==id);
+    state.openTripId = null;
+    showToast("Trip deleted");
+  } catch { showToast("Couldn't delete — check your connection"); render(); }
 }
 
 // ---------- summary ----------
@@ -579,7 +890,7 @@ function renderSummaryTab() {
   const year = state.summaryYear;
   const yearExp = state.expenses.filter(e => (e.date||"").startsWith(year));
   const total = yearExp.reduce((s,e)=>s+Number(e.amount||0),0);
-  const byCat = CATEGORIES.map(c => ({ cat:c, total: yearExp.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.amount||0),0), n: yearExp.filter(e=>e.category===c).length })).filter(r=>r.n>0).sort((a,b)=>b.total-a.total);
+  const byCat = allCategoryNames().map(c => ({ cat:c, total: yearExp.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.amount||0),0), n: yearExp.filter(e=>e.category===c).length })).filter(r=>r.n>0).sort((a,b)=>b.total-a.total);
 
   return `
     <div class="card">
@@ -594,14 +905,14 @@ function renderSummaryTab() {
     </div>
     <div class="card">
       <label class="field-label">By category</label>
-      ${byCat.length===0 ? `<div style="font-size:14px;color:#7A857A">Nothing recorded for ${year} yet.</div>` : byCat.map(r=>`
+      ${byCat.length===0 ? `<div style="font-size:14px;color:#8B7F65">Nothing recorded for ${year} yet.</div>` : byCat.map(r=>`
         <div class="leader"><span style="font-size:14.5px;font-weight:700">${esc(r.cat)}</span><div class="dots"></div><span class="mono" style="font-weight:700">${fmt(r.total)}</span></div>
-        <div class="bar-bg"><div class="bar-fg" style="width:${total?(r.total/total*100):0}%;background:${CAT_COLORS[r.cat]||'#777'}"></div></div>
+        <div class="bar-bg"><div class="bar-fg" style="width:${total?(r.total/total*100):0}%;background:${getCatColor(r.cat)}"></div></div>
       `).join("")}
     </div>
     <div class="card">
       <label class="field-label">By trip</label>
-      ${state.trips.length===0 ? `<div style="font-size:14px;color:#7A857A">No trips created yet.</div>` : state.trips.map(t=>{
+      ${state.trips.length===0 ? `<div style="font-size:14px;color:#8B7F65">No trips created yet.</div>` : state.trips.map(t=>{
         const tt = yearExp.filter(e=>e.tripId===t.id).reduce((s,e)=>s+Number(e.amount||0),0);
         if (!tt) return "";
         return `<div class="leader"><span style="font-size:14.5px;font-weight:700">${esc(t.name)}</span><div class="dots"></div><span class="mono" style="font-weight:700">${fmt(tt)}</span></div>`;
@@ -612,29 +923,60 @@ function renderSummaryTab() {
       <div class="small-note">The CSV opens in Excel or Google Sheets — handy to hand to a tax preparer.</div>
     </div>
     <div class="card">
-      <label class="field-label">Backup your data</label>
-      <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Everything is stored only on this device's browser. Export a backup now and then so you never lose it.</div>
-      <div class="row">
-        <button class="btn-ghost" onclick="exportBackup()">Export backup</button>
-        <button class="btn-ghost" onclick="document.getElementById('backupInput').click()">Import backup</button>
-      </div>
-      <input type="file" id="backupInput" accept="application/json" style="display:none">
+      <label class="field-label">Categories</label>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Built-in categories always show up when adding an expense. Add your own below for anything specific to your business.</div>
+      ${state.categories.length===0 ? `<div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">No custom categories yet.</div>` : state.categories.map(c => `
+        <div class="leader">
+          <span style="font-size:14.5px;font-weight:600">${esc(c.name)}</span>
+          <div class="dots"></div>
+          <button class="link-btn" style="color:#C0522A" onclick="removeCategory('${c.id}')">Remove</button>
+        </div>`).join("")}
+      <button class="btn-ghost" style="margin-top:8px" onclick="quickAddCategoryStandalone()">＋ Add category</button>
+    </div>
+    <div class="card">
+      <label class="field-label">Account</label>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Signed in as ${esc(state.session.email||"")}. Your data is stored securely in the cloud — clearing this browser will never delete it.</div>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
     </div>
   `;
 }
 function setSummaryYear(y) { state.summaryYear = y; render(); }
 
+async function quickAddCategoryStandalone() {
+  const name = prompt("New category name:");
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (allCategoryNames().some(c => c.toLowerCase() === trimmed.toLowerCase())) { showToast("That category already exists"); return; }
+  try {
+    const cat = await addCategoryRemote(trimmed);
+    state.categories.push(cat);
+    showToast("Category added");
+    render();
+  } catch { showToast("Couldn't add category — check your connection"); }
+}
+async function removeCategory(id) {
+  const cat = state.categories.find(c => c.id === id);
+  if (!cat) return;
+  if (!confirm(`Remove "${cat.name}"? Expenses already using it will keep it, but it won't show up as a quick-pick anymore.`)) return;
+  try {
+    await deleteCategoryRemote(id);
+    state.categories = state.categories.filter(c => c.id !== id);
+    showToast("Category removed");
+    render();
+  } catch { showToast("Couldn't remove — check your connection"); }
+}
+
 // ---------- settings ----------
 function openSettings() {
   const key = prompt(
     "Optional: paste your own Anthropic API key to enable automatic receipt scanning.\n\n" +
-    "This stays only on your device and is sent directly to Anthropic's API when you scan a receipt. " +
+    "This stays only on this device and is sent directly to Anthropic's API when you scan a receipt. " +
     "Leave blank and press OK to just clear/skip this — you can always enter receipt details manually.",
     state.apiKey || ""
   );
   if (key === null) return;
   state.apiKey = key.trim();
-  save(LS_KEYS.apiKey, state.apiKey);
+  saveLocal("bl_apikey", state.apiKey);
   showToast(state.apiKey ? "Receipt scanning enabled" : "Receipt scanning turned off");
 }
 
@@ -650,20 +992,25 @@ function wireDynamicHandlers() {
     searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
   }
 
-  const backupInput = document.getElementById("backupInput");
-  if (backupInput) backupInput.onchange = (e) => importBackup(e.target.files[0]);
+  const submitBtn = document.getElementById("submitExpenseBtn");
+  if (submitBtn) submitBtn.onclick = submitExpense;
 
-  if (state.sheet) {
-    selectedCategory = state.sheet.expense ? state.sheet.expense.category : "Meals";
+  const submitTripBtn = document.getElementById("submitTripBtn");
+  if (submitTripBtn) submitTripBtn.onclick = () => submitTrip(state.tripSheet.trip ? state.tripSheet.trip.id : "");
+
+  const attachSearch = document.getElementById("attachSearch");
+  if (attachSearch) {
+    attachSearch.oninput = (e) => { state.attachSheet.search = e.target.value; };
+    attachSearch.onblur = () => render();
+    attachSearch.addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
   }
 }
 
-// expose needed globals (since this is a plain script, not a module)
+// expose needed globals
 window.setTab = setTab;
 window.openExpenseSheet = openExpenseSheet;
 window.closeSheet = closeSheet;
 window.pickCategory = pickCategory;
-window.submitExpense = submitExpense;
 window.deleteExpense = deleteExpense;
 window.openDetail = openDetail;
 window.closeDetail = closeDetail;
@@ -671,7 +1018,6 @@ window.editFromDetail = editFromDetail;
 window.toggleTripOpen = toggleTripOpen;
 window.openTripSheet = openTripSheet;
 window.closeTripSheet = closeTripSheet;
-window.submitTrip = submitTrip;
 window.deleteTrip = deleteTrip;
 window.setSummaryYear = setSummaryYear;
 window.openSettings = openSettings;
@@ -679,9 +1025,17 @@ window.toggleFilters = toggleFilters;
 window.setFilter = setFilter;
 window.clearFilters = clearFilters;
 window.exportCSV = exportCSV;
-window.exportBackup = exportBackup;
 window.state = state;
 window.filteredExpenses = filteredExpenses;
+window.signOut = signOut;
+window.quickAddCategory = quickAddCategory;
+window.handleTripSelectChange = handleTripSelectChange;
+window.quickAddCategoryStandalone = quickAddCategoryStandalone;
+window.removeCategory = removeCategory;
+window.openAttachSheet = openAttachSheet;
+window.closeAttachSheet = closeAttachSheet;
+window.toggleAttachChecked = toggleAttachChecked;
+window.saveAttachSheet = saveAttachSheet;
 
 render();
 </script>
