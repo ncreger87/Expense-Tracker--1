@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#F7F2E8">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-512.png">
+<title>Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #211C14;
+    --bg: #F7F2E8;
+    --paper: #FFFFFF;
+    --accent: #E1873F;
+    --accent-deep: #A85D22;
+    --accent-pale: #F6DFBC;
+    --headertext: #211C14;
+    --muted: #85795F;
+    --line: #E6DCC5;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Inter', -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: calc(92px + env(safe-area-inset-bottom)); position: relative; }
+  .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .header { padding: calc(22px + env(safe-area-inset-top)) 18px 16px; background: var(--bg); color: var(--headertext); border-bottom: 1px solid var(--line); }
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: var(--bg); z-index: 90; pointer-events: none; }
+  .header-brand { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+  .header-brand .dot { color: var(--accent); }
+  .eyebrow { font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-deep); font-weight: 700; }
+  .header-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px; }
+  .header-sub { font-size: 12px; color: var(--muted); }
+  .header-big { font-size: 32px; font-weight: 600; }
+  .header-small { font-size: 18px; font-weight: 600; text-align: right; color: var(--accent-deep); }
+  .ledger-rule { height: 3px; margin-top: 16px; border-radius: 3px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-pale) 100%); }
+  .card { background: var(--paper); border-radius: 12px; border: 1px solid var(--line); margin: 10px 12px; overflow: hidden; padding: 14px; }
+  .row { display: flex; gap: 8px; }
+  input, select {
+    width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 8px;
+    border: 1px solid var(--line); font-size: 16px; background: #FFFEFB; color: var(--ink); margin-bottom: 10px;
+  }
+  label.field-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%); color: #241505; border: none; border-radius: 10px; padding: 13px 18px; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; }
+  .btn-ghost { background: transparent; color: var(--accent-deep); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; }
+  .btn-danger { border-color: #C0522A; color: #C0522A; }
+  .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%); -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%); }
+  .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: #FFF; color: #5C523E; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; flex-shrink: 0; }
+  .chip.active { border-color: var(--accent-deep); background: var(--accent-pale); color: var(--accent-deep); }
+  .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(255,255,255,0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 calc(14px + env(safe-area-inset-bottom)); z-index: 30; }
+  .navbtn { background: none; border: none; font-size: 13px; color: #A99C7E; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 10px; }
+  .navbtn.active { font-weight: 700; color: var(--accent-deep); }
+  .fab { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%); color: #241505; border: none; border-radius: 50%; width: 58px; height: 58px; font-size: 26px; font-weight: 400; cursor: pointer; box-shadow: 0 4px 12px rgba(168,93,34,0.35); margin-top: -26px; }
+  .overlay { position: fixed; inset: 0; background: rgba(33,26,15,0.55); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: #FBF7EC; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; border-radius: 16px 16px 0 0; padding: 18px 16px 30px; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .sheet-title { font-size: 19px; font-weight: 800; }
+  .closebtn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); }
+  .leader { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; }
+  .dots { flex: 1; border-bottom: 2px dotted #D9CBA9; transform: translateY(-4px); }
+  .cat-badge { padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 12.5px; }
+  .empty { text-align: center; padding: 50px 30px; color: #8B7F65; }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-title { font-weight: 700; font-size: 17px; color: #2B2417; }
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #2B2013; color: #F7EFDF; padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; z-index: 90; white-space: nowrap; max-width: 90%; text-align: center; }
+  .bar-bg { height: 5px; background: #EFE7D2; border-radius: 3px; margin-bottom: 8px; }
+  .bar-fg { height: 5px; border-radius: 3px; }
+  .receipt-img { width: 100%; border-radius: 10px; display: block; margin-bottom: 12px; }
+  .photo-wrap { position: relative; margin-bottom: 12px; }
+  .retake-btn { position: absolute; bottom: 10px; right: 10px; }
+  .scan-overlay { position: absolute; inset: 0; background: rgba(33,26,15,0.6); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #F2F5EF; font-weight: 700; }
+  .search-row { display: flex; gap: 8px; margin: 12px 12px 0; }
+  .search-row input { margin-bottom: 0; flex: 1; }
+  .small-note { font-size: 12.5px; color: #8B7F65; text-align: center; margin-top: 8px; }
+  .link-btn { background: none; border: none; color: var(--header); font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 14px; padding: 0; }
+  .center-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 30px; }
+  .error-text { color: #B04A5A; font-size: 13.5px; margin: -4px 0 10px; }
+  .lock-icon { font-size: 40px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ---------------- Supabase config ----------------
+const SUPABASE_URL = "https://uqpxtjizexuttoidrzgm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_a9rLzqvYPdR0_XHpvy-P8A_ZtyE1F9r";
+
+// ---------------- local (device-only) storage: session + your own AI key ----------------
+function loadLocal(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } }
+function saveLocal(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } }
+
+// ---------------- constants ----------------
+const CATEGORIES = ["Meals","Travel","Lodging","Supplies","Equipment","Software & Subscriptions","Marketing & Ads","Production & Props","Shipping","Fees & Services","Other"];
+const CAT_COLORS = { "Meals":"#C77B3F","Travel":"#3F7BC7","Lodging":"#7B5EA7","Supplies":"#5E8C61","Equipment":"#4A6670","Software & Subscriptions":"#356E6A","Marketing & Ads":"#B04A5A","Production & Props":"#8A6D3B","Shipping":"#6B7A8F","Fees & Services":"#5C5470","Other":"#777777" };
+const EXTRA_CAT_PALETTE = ["#B9762C","#3E6E8C","#6B5FA8","#4F7A5C","#A8543F","#5C7A3E","#8C4F7A","#3F7A72","#A87F2C"];
+function allCategoryNames() { return CATEGORIES.concat(state.categories.map(c => c.name)); }
+function getCatColor(name) {
+  if (CAT_COLORS[name]) return CAT_COLORS[name];
+  const idx = state.categories.findIndex(c => c.name === name);
+  if (idx === -1) return "#777777";
+  return EXTRA_CAT_PALETTE[idx % EXTRA_CAT_PALETTE.length];
+}
+const fmt = (n) => Number(n||0).toLocaleString("en-US",{style:"currency",currency:"USD"});
+const todayISO = () => new Date().toISOString().slice(0,10);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = (s) => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// ---------------- state ----------------
+let state = {
+  session: loadLocal("bl_session", null), // {access_token, refresh_token, expires_at, email}
+  authMode: "signin", // 'signin' | 'signup'
+  authError: "",
+  authBusy: false,
+  recoveryToken: null,
+  recoverySession: null,
+  expenses: [],
+  trips: [],
+  categories: [], // custom categories, [{id, name}]
+  deposits: [],
+  moneyView: "expenses", // "expenses" | "deposits"
+  depositSheet: null,
+  dataLoaded: false,
+  tab: "expenses",
+  sheet: null,
+  tripSheet: null,
+  detail: null,
+  openTripId: null,
+  attachSheet: null, // {tripId, checked: Set, search: ""}
+  fCat: "All", fTrip: "All", fFrom: "", fTo: "", search: "",
+  showFilters: false,
+  summaryYear: null,
+  toast: "",
+};
+
+function showToast(msg) {
+  state.toast = msg; render();
+  setTimeout(() => { state.toast = ""; render(); }, 2800);
+}
+function showToastLocal(msg) {
+  let el = document.querySelector(".toast");
+  if (el) el.remove();
+  el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.remove(); }, 2800);
+}
+
+// ---------------- auth ----------------
+async function ensureAccessToken() {
+  if (!state.session) return null;
+  const bufferMs = 60000;
+  if (state.session.expires_at && Date.now() < state.session.expires_at - bufferMs) {
+    return state.session.access_token;
+  }
+  // refresh
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+      body: JSON.stringify({ refresh_token: state.session.refresh_token }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || "refresh failed");
+    state.session = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: Date.now() + (data.expires_in * 1000),
+      email: state.session.email,
+    };
+    saveLocal("bl_session", state.session);
+    return state.session.access_token;
+  } catch {
+    state.session = null;
+    saveLocal("bl_session", null);
+    return null;
+  }
+}
+
+async function signIn(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || "Sign in failed");
+  state.session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + data.expires_in*1000, email };
+  saveLocal("bl_session", state.session);
+}
+
+async function signUp(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || "Sign up failed");
+  if (data.access_token) {
+    state.session = { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: Date.now() + data.expires_in*1000, email };
+    saveLocal("bl_session", state.session);
+  } else {
+    // email confirmation required
+    throw new Error("CONFIRM_EMAIL");
+  }
+}
+
+async function sendPasswordReset(email) {
+  const redirect = location.origin + location.pathname;
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirect)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error_description || data.msg || "Couldn't send reset email");
+  }
+}
+
+async function updatePassword(newPassword) {
+  const token = state.recoveryToken;
+  if (!token) throw new Error("Recovery link expired — please request a new one.");
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": `Bearer ${token}` },
+    body: JSON.stringify({ password: newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || "Couldn't update password");
+  // they're already signed in via the recovery link — go straight into the app
+  if (state.recoverySession) {
+    state.session = state.recoverySession;
+    saveLocal("bl_session", state.session);
+  }
+  state.recoveryToken = null;
+  state.recoverySession = null;
+}
+
+function signOut() {
+  state.session = null; saveLocal("bl_session", null);
+  state.expenses = []; state.trips = []; state.dataLoaded = false;
+  render();
+}
+
+// ---------------- Supabase REST helpers ----------------
+async function sb(path, opts = {}) {
+  const token = await ensureAccessToken();
+  if (!token) { state.session = null; render(); throw new Error("signed-out"); }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(opts.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(()=> "");
+    throw new Error(`Request failed (${res.status}): ${text}`);
+  }
+  const text = await res.text();
+  if (!text) return null;
+  try { return JSON.parse(text); } catch { return null; }
+}
+
+function rowToExpense(r) {
+  return { id: r.id, vendor: r.vendor || "", amount: Number(r.amount||0), date: r.date, category: r.category, tripId: r.trip_id || "", notes: r.notes || "", photo: r.photo || null };
+}
+function rowToTrip(r) {
+  return { id: r.id, name: r.name || "", start: r.start_date || "", end: r.end_date || "", purpose: r.purpose || "" };
+}
+function rowToCategory(r) { return { id: r.id, name: r.name }; }
+function rowToDeposit(r) {
+  return { id: r.id, source: r.source || "", amount: Number(r.amount||0), date: r.date, notes: r.notes || "" };
+}
+
+async function loadAllData() {
+  try {
+    const [expRows, tripRows, catRows, depRows] = await Promise.all([
+      sb("ledger_expenses?select=*&order=date.desc"),
+      sb("ledger_trips?select=*&order=created_at.desc"),
+      sb("ledger_categories?select=*&order=created_at.asc"),
+      sb("ledger_deposits?select=*&order=date.desc"),
+    ]);
+    state.expenses = (expRows||[]).map(rowToExpense);
+    state.trips = (tripRows||[]).map(rowToTrip);
+    state.categories = (catRows||[]).map(rowToCategory);
+    state.deposits = (depRows||[]).map(rowToDeposit);
+    state.dataLoaded = true;
+  } catch (e) {
+    showToast("Couldn't load your data — check your connection");
+  }
+  render();
+}
+
+async function upsertDepositRemote(dep) {
+  await sb("ledger_deposits?on_conflict=id", {
+    method: "POST",
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify([{
+      id: dep.id, source: dep.source, amount: dep.amount, date: dep.date, notes: dep.notes,
+      updated_at: new Date().toISOString(),
+    }]),
+  });
+}
+async function deleteDepositRemote(id) {
+  await sb(`ledger_deposits?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+async function addCategoryRemote(name) {
+  const row = { id: uid(), name, created_at: new Date().toISOString() };
+  await sb("ledger_categories", { method: "POST", headers: { "Prefer": "return=minimal" }, body: JSON.stringify([row]) });
+  return { id: row.id, name };
+}
+async function deleteCategoryRemote(id) {
+  await sb(`ledger_categories?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+async function batchSetTripId(ids, tripId) {
+  if (!ids.length) return;
+  await sb(`ledger_expenses?id=in.(${ids.join(",")})`, {
+    method: "PATCH",
+    headers: { "Prefer": "return=minimal" },
+    body: JSON.stringify({ trip_id: tripId, updated_at: new Date().toISOString() }),
+  });
+}
+
+async function upsertExpenseRemote(exp) {
+  await sb("ledger_expenses?on_conflict=id", {
+    method: "POST",
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify([{
+      id: exp.id, vendor: exp.vendor, amount: exp.amount, date: exp.date,
+      category: exp.category, trip_id: exp.tripId || null, notes: exp.notes,
+      photo: exp.photo, updated_at: new Date().toISOString(),
+    }]),
+  });
+}
+async function deleteExpenseRemote(id) {
+  await sb(`ledger_expenses?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+async function upsertTripRemote(trip) {
+  await sb("ledger_trips?on_conflict=id", {
+    method: "POST",
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify([{
+      id: trip.id, name: trip.name, start_date: trip.start || null, end_date: trip.end || null,
+      purpose: trip.purpose, updated_at: new Date().toISOString(),
+    }]),
+  });
+}
+async function deleteTripRemote(id) {
+  await sb(`ledger_trips?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+// ---------------- image compression ----------------
+function compressImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        const scale = Math.min(1, maxDim / Math.max(width, height));
+        width = Math.round(width * scale); height = Math.round(height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---------------- automatic receipt scan (runs server-side, works for every signed-in user) ----------------
+const SCAN_RECEIPT_URL = `${SUPABASE_URL}/functions/v1/scan-receipt`;
+async function scanReceipt(dataUrl) {
+  const base64 = dataUrl.split(",")[1];
+  const mediaType = (dataUrl.match(/^data:([^;]+);/) || [null, "image/jpeg"])[1];
+  const token = await ensureAccessToken();
+  if (!token) throw new Error("signed-out");
+  const res = await fetch(SCAN_RECEIPT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+      "apikey": SUPABASE_KEY,
+    },
+    body: JSON.stringify({ image: base64, mediaType }),
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+}
+
+// ---------------- CSV export ----------------
+function tripName(id) { return (state.trips.find(t => t.id === id) || {}).name || ""; }
+
+function exportCSV(rows, filename) {
+  const head = "Date,Vendor,Amount,Category,Trip,Notes\n";
+  const body = rows.map(e => [
+    e.date,
+    `"${(e.vendor||"").replace(/"/g,'""')}"`,
+    Number(e.amount||0).toFixed(2),
+    `"${e.category}"`,
+    `"${tripName(e.tripId)}"`,
+    `"${(e.notes||"").replace(/"/g,'""')}"`,
+  ].join(",")).join("\n");
+  const blob = new Blob([head + body], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---------------- filtering ----------------
+function filteredExpenses() {
+  return state.expenses.filter(e => {
+    if (state.fCat !== "All" && e.category !== state.fCat) return false;
+    if (state.fTrip !== "All" && (e.tripId||"") !== state.fTrip) return false;
+    if (state.fFrom && e.date < state.fFrom) return false;
+    if (state.fTo && e.date > state.fTo) return false;
+    if (state.search && !((e.vendor||"")+" "+(e.notes||"")).toLowerCase().includes(state.search.toLowerCase())) return false;
+    return true;
+  }).sort((a,b) => a.date < b.date ? 1 : -1);
+}
+
+// ---------------- render root ----------------
+function render() {
+  const app = document.getElementById("app");
+
+  if (!state.session) { app.innerHTML = renderAuthScreen(); wireAuthHandlers(); return; }
+  if (!state.dataLoaded) { app.innerHTML = `<div class="center-screen"><div style="color:var(--muted);font-weight:600">Loading your ledger…</div></div>`; loadAllData(); return; }
+
+  const year = new Date().getFullYear();
+  const ytdExpenses = state.expenses.filter(e => (e.date||"").startsWith(String(year))).reduce((s,e)=>s+Number(e.amount||0),0);
+  const ytdDeposits = state.deposits.filter(d => (d.date||"").startsWith(String(year))).reduce((s,d)=>s+Number(d.amount||0),0);
+  const showingDeposits = state.tab === "expenses" && state.moneyView === "deposits";
+  const ytd = showingDeposits ? ytdDeposits : ytdExpenses;
+  const filtered = filteredExpenses();
+  const filteredTotal = filtered.reduce((s,e)=>s+Number(e.amount||0),0);
+  const filteredDeposits = state.deposits.filter(d => !state.search || ((d.source||"")+" "+(d.notes||"")).toLowerCase().includes(state.search.toLowerCase()));
+  const filteredDepositsTotal = filteredDeposits.reduce((s,d)=>s+Number(d.amount||0),0);
+
+  app.innerHTML = `
+    <div class="header">
+      <div class="eyebrow">Personal Expense Ledger</div>
+      <div class="header-brand serif">Ledger<span class="dot">.</span></div>
+      <div class="header-row">
+        <div>
+          <div class="header-sub">${year} ${showingDeposits ? "income" : "expenses"} to date</div>
+          <div class="header-big mono">${fmt(ytd)}</div>
+        </div>
+        ${state.tab === "expenses" ? `<div style="text-align:right"><div class="header-sub">${showingDeposits ? filteredDeposits.length : filtered.length} shown</div><div class="header-small mono">${fmt(showingDeposits ? filteredDepositsTotal : filteredTotal)}</div></div>` : ""}
+      </div>
+      <div class="ledger-rule"></div>
+    </div>
+    <div id="tabcontent"></div>
+    <div class="nav">
+      <button class="navbtn ${state.tab==='expenses'?'active':''}" onclick="setTab('expenses')"><span style="font-size:20px">▤</span>Expenses</button>
+      <button class="fab" onclick="${showingDeposits ? 'openDepositSheet()' : 'openExpenseSheet()'}">＋</button>
+      <button class="navbtn ${state.tab==='trips'?'active':''}" onclick="setTab('trips')"><span style="font-size:20px">⌖</span>Trips</button>
+      <button class="navbtn ${state.tab==='summary'?'active':''}" onclick="setTab('summary')"><span style="font-size:20px">Σ</span>Summary</button>
+    </div>
+    ${state.sheet ? renderExpenseSheet() : ""}
+    ${state.tripSheet ? renderTripSheet() : ""}
+    ${state.depositSheet ? renderDepositSheet() : ""}
+    ${state.detail ? renderDetailSheet() : ""}
+    ${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ""}
+  `;
+
+  const tabc = document.getElementById("tabcontent");
+  if (state.tab === "expenses") tabc.innerHTML = renderExpensesTab(filtered);
+  else if (state.tab === "trips") tabc.innerHTML = renderTripsTab();
+  else tabc.innerHTML = renderSummaryTab();
+
+  wireDynamicHandlers();
+}
+
+function setTab(t) { state.tab = t; render(); }
+
+// ---------- auth screen ----------
+function renderAuthScreen() {
+  if (state.authMode === "recovery") {
+    return `
+    <div class="center-screen">
+      <div class="lock-icon">🔒</div>
+      <div class="serif" style="font-size:24px;font-weight:600;margin-bottom:4px">Set a new password</div>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:22px;text-align:center">Choose a new password for your account. You'll use it to sign in from now on.</div>
+      <div class="card" style="width:100%;max-width:340px;margin:0">
+        <label class="field-label">New password</label>
+        <input id="authNewPass1" type="password" autocomplete="new-password" placeholder="At least 6 characters">
+        <label class="field-label">Confirm new password</label>
+        <input id="authNewPass2" type="password" autocomplete="new-password" placeholder="Type it again">
+        ${state.authError ? `<div class="error-text">${esc(state.authError)}</div>` : ""}
+        <button class="btn-primary" id="authSubmit" ${state.authBusy?"disabled":""}>${state.authBusy ? "Saving…" : "Save new password"}</button>
+      </div>
+    </div>`;
+  }
+  if (state.authMode === "forgot") {
+    return `
+    <div class="center-screen">
+      <div class="lock-icon">🔒</div>
+      <div class="serif" style="font-size:24px;font-weight:600;margin-bottom:4px">Reset your password</div>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:22px;text-align:center">Enter your email and we'll send you a link to set a new password.</div>
+      <div class="card" style="width:100%;max-width:340px;margin:0">
+        <label class="field-label">Email</label>
+        <input id="authEmail" type="email" autocapitalize="off" autocomplete="email" placeholder="you@example.com">
+        ${state.authError ? `<div class="error-text">${esc(state.authError)}</div>` : ""}
+        <button class="btn-primary" id="authSubmit" ${state.authBusy?"disabled":""}>${state.authBusy ? "Sending…" : "Send reset link"}</button>
+        <button class="link-btn" style="margin-top:14px;display:block;text-align:center;width:100%" id="authBack">Back to sign in</button>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="center-screen">
+    <div class="lock-icon">🔒</div>
+    <div class="serif" style="font-size:24px;font-weight:600;margin-bottom:4px">Ledger</div>
+    <div style="font-size:13.5px;color:var(--muted);margin-bottom:22px;text-align:center">Your expenses are stored securely in the cloud, tied to your account.</div>
+    <div class="card" style="width:100%;max-width:340px;margin:0">
+      <label class="field-label">Email</label>
+      <input id="authEmail" type="email" autocapitalize="off" autocomplete="email" placeholder="you@example.com">
+      <label class="field-label">Password</label>
+      <input id="authPassword" type="password" autocomplete="${state.authMode==='signup'?'new-password':'current-password'}" placeholder="At least 6 characters">
+      ${state.authError ? `<div class="error-text">${esc(state.authError)}</div>` : ""}
+      <button class="btn-primary" id="authSubmit" ${state.authBusy?"disabled":""}>${state.authBusy ? "Please wait…" : (state.authMode==='signup' ? "Create account" : "Sign in")}</button>
+      ${state.authMode!=='signup' ? `<button class="link-btn" style="margin-top:10px;display:block;text-align:center;width:100%" id="authForgot">Forgot password?</button>` : ""}
+      <button class="link-btn" style="margin-top:6px;display:block;text-align:center;width:100%" id="authToggle">
+        ${state.authMode==='signup' ? "Already have an account? Sign in" : "New here? Create an account"}
+      </button>
+    </div>
+  </div>`;
+}
+
+function wireAuthHandlers() {
+  if (state.authMode === "recovery") {
+    document.getElementById("authSubmit").onclick = async () => {
+      const p1 = document.getElementById("authNewPass1").value;
+      const p2 = document.getElementById("authNewPass2").value;
+      if (p1.length < 6) { state.authError = "Password must be at least 6 characters"; render(); return; }
+      if (p1 !== p2) { state.authError = "Those two passwords don't match"; render(); return; }
+      state.authBusy = true; state.authError = ""; render();
+      try {
+        await updatePassword(p1);
+        state.authBusy = false;
+        state.authMode = "signin";
+        render();
+      } catch (e) {
+        state.authBusy = false;
+        state.authError = e.message;
+        render();
+      }
+    };
+    return;
+  }
+  if (state.authMode === "forgot") {
+    document.getElementById("authSubmit").onclick = async () => {
+      const email = document.getElementById("authEmail").value.trim();
+      if (!email) { state.authError = "Enter your email first"; render(); return; }
+      state.authBusy = true; state.authError = ""; render();
+      try {
+        await sendPasswordReset(email);
+        state.authBusy = false;
+        state.authError = "Check your email for a reset link. Open it on this device, then you'll set a new password.";
+        render();
+      } catch (e) {
+        state.authBusy = false;
+        state.authError = e.message;
+        render();
+      }
+    };
+    document.getElementById("authBack").onclick = () => {
+      state.authMode = "signin"; state.authError = ""; render();
+    };
+    return;
+  }
+  document.getElementById("authSubmit").onclick = async () => {
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value;
+    if (!email || !password) { state.authError = "Enter an email and password"; render(); return; }
+    state.authBusy = true; state.authError = ""; render();
+    try {
+      if (state.authMode === "signup") await signUp(email, password);
+      else await signIn(email, password);
+      state.authBusy = false;
+      render();
+    } catch (e) {
+      state.authBusy = false;
+      state.authError = e.message === "CONFIRM_EMAIL" ? "Account created — check your email to confirm, then sign in." : e.message;
+      if (e.message === "CONFIRM_EMAIL") state.authMode = "signin";
+      render();
+    }
+  };
+  document.getElementById("authToggle").onclick = () => {
+    state.authMode = state.authMode === "signup" ? "signin" : "signup";
+    state.authError = "";
+    render();
+  };
+  const forgotBtn = document.getElementById("authForgot");
+  if (forgotBtn) forgotBtn.onclick = () => {
+    state.authMode = "forgot"; state.authError = ""; render();
+  };
+}
+
+// ---------- expenses tab ----------
+function renderExpensesTab(filtered) {
+  const activeFilters = (state.fCat!=="All") + (state.fTrip!=="All") + !!state.fFrom + !!state.fTo;
+  return `
+    <div class="chip-row" style="margin:12px 12px 0">
+      <button class="chip ${state.moneyView==='expenses'?'active':''}" onclick="setMoneyView('expenses')">Expenses</button>
+      <button class="chip ${state.moneyView==='deposits'?'active':''}" onclick="setMoneyView('deposits')">Deposits</button>
+    </div>
+    ${state.moneyView === "deposits" ? renderDepositsList() : renderExpensesList(filtered, activeFilters)}
+  `;
+}
+
+function setMoneyView(v) { state.moneyView = v; render(); }
+
+function renderExpensesList(filtered, activeFilters) {
+  return `
+    <div class="search-row">
+      <input id="searchInput" placeholder="Search vendor or notes" value="${esc(state.search)}">
+      <button class="chip ${state.showFilters||activeFilters>0?'active':''}" style="padding:0 14px" onclick="toggleFilters()">Filters${activeFilters?` · ${activeFilters}`:""}</button>
+    </div>
+    ${state.showFilters ? `
+      <div class="card">
+        <label class="field-label">Category</label>
+        <div class="chip-row">
+          ${["All",...allCategoryNames()].map(c=>`<button class="chip ${state.fCat===c?'active':''}" onclick="setFilter('fCat','${esc(c)}')">${esc(c)}</button>`).join("")}
+        </div>
+        <label class="field-label">Trip</label>
+        <select id="tripFilter" onchange="setFilter('fTrip', this.value)">
+          <option value="All" ${state.fTrip==="All"?"selected":""}>All trips</option>
+          <option value="" ${state.fTrip===""?"selected":""}>No trip</option>
+          ${state.trips.map(t=>`<option value="${t.id}" ${state.fTrip===t.id?"selected":""}>${esc(t.name)}</option>`).join("")}
+        </select>
+        <div class="row">
+          <div style="flex:1"><label class="field-label">From</label><input type="date" value="${state.fFrom}" onchange="setFilter('fFrom', this.value)"></div>
+          <div style="flex:1"><label class="field-label">To</label><input type="date" value="${state.fTo}" onchange="setFilter('fTo', this.value)"></div>
+        </div>
+        <div class="row">
+          <button class="btn-ghost" style="padding:10px" onclick="clearFilters()">Clear filters</button>
+          <button class="btn-ghost" style="padding:10px" onclick="exportCSV(filteredExpenses(),'expenses-filtered.csv')">Export shown (CSV)</button>
+        </div>
+      </div>` : ""}
+    ${filtered.length===0 ? `
+      <div class="empty">
+        <div class="empty-icon">▤</div>
+        <div class="empty-title">No expenses here yet</div>
+        <div style="font-size:14px;margin-top:6px">Tap the ＋ button and snap a photo of a receipt to add your first one.</div>
+      </div>` : filtered.map(e => `
+      <div class="card" style="cursor:pointer" onclick="openDetail('${e.id}')">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div style="font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%">${esc(e.vendor)||"Untitled"}</div>
+          <div class="dots"></div>
+          <div class="mono" style="font-weight:700;font-size:16px">${fmt(e.amount)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--muted)">
+          <span class="cat-badge" style="background:${getCatColor(e.category)}22;color:${getCatColor(e.category)}">${esc(e.category)}</span>
+          <span class="mono">${e.date}</span>
+          ${e.tripId ? `<span>· ${esc(tripName(e.tripId))}</span>` : ""}
+          ${e.photo ? `<span>· 📷</span>` : ""}
+        </div>
+      </div>`).join("")}
+  `;
+}
+
+function renderDepositsList() {
+  const list = state.deposits.filter(d => !state.search || ((d.source||"")+" "+(d.notes||"")).toLowerCase().includes(state.search.toLowerCase()));
+  return `
+    <div class="search-row">
+      <input id="searchInput" placeholder="Search source or notes" value="${esc(state.search)}">
+    </div>
+    ${list.length===0 ? `
+      <div class="empty">
+        <div class="empty-icon">Σ</div>
+        <div class="empty-title">No deposits logged yet</div>
+        <div style="font-size:14px;margin-top:6px">Tap the ＋ button to log a payout, tip, or any income.</div>
+      </div>` : list.map(d => `
+      <div class="card" style="cursor:pointer" onclick="openDepositSheet('${d.id}')">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div style="font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%">${esc(d.source)||"Untitled"}</div>
+          <div class="dots"></div>
+          <div class="mono" style="font-weight:700;font-size:16px;color:var(--accent-deep)">+${fmt(d.amount)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--muted)">
+          <span class="mono">${d.date}</span>
+          ${d.notes ? `<span>· ${esc(d.notes)}</span>` : ""}
+        </div>
+      </div>`).join("")}
+  `;
+}
+
+function toggleFilters() { state.showFilters = !state.showFilters; render(); }
+function setFilter(key, val) { state[key] = val; render(); }
+function clearFilters() { state.fCat="All"; state.fTrip="All"; state.fFrom=""; state.fTo=""; state.search=""; render(); }
+
+// ---------- expense sheet ----------
+let draftPhoto = null;
+let draftScanning = false;
+let selectedCategory = null;
+let savingExpense = false;
+
+function openExpenseSheet(id) {
+  const exp = id ? state.expenses.find(e=>e.id===id) : null;
+  draftPhoto = exp ? exp.photo : null;
+  draftScanning = false;
+  selectedCategory = exp ? exp.category : "Meals";
+  state.sheet = { mode: exp ? "edit" : "new", expense: exp };
+  render();
+}
+function closeSheet() { state.sheet = null; render(); }
+
+function renderExpenseSheet() {
+  const exp = state.sheet.expense;
+  const vendor = exp ? exp.vendor : "";
+  const amount = exp ? exp.amount : "";
+  const date = exp ? exp.date : todayISO();
+  const category = exp ? exp.category : "Meals";
+  const tripId = exp ? (exp.tripId||"") : "";
+  const notes = exp ? exp.notes : "";
+  return `
+  <div class="overlay" onclick="closeSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-head">
+        <div class="sheet-title serif">${exp ? "Edit expense" : "New expense"}</div>
+        <button class="closebtn" onclick="closeSheet()">✕</button>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none">
+      <div id="photoArea">${renderPhotoArea()}</div>
+
+      <label class="field-label">Vendor</label>
+      <input id="fVendor" value="${esc(vendor)}" placeholder="Where you spent it">
+
+      <div class="row">
+        <div style="flex:1"><label class="field-label">Amount</label><input id="fAmount" class="mono" type="number" inputmode="decimal" step="0.01" value="${amount}" placeholder="0.00"></div>
+        <div style="flex:1"><label class="field-label">Date</label><input id="fDate" type="date" value="${date}"></div>
+      </div>
+
+      <label class="field-label">Category</label>
+      <div class="chip-row" id="catRow">
+        ${allCategoryNames().map(c=>`<button class="chip ${category===c?'active':''}" data-cat="${esc(c)}" onclick="pickCategory('${esc(c)}')">${esc(c)}</button>`).join("")}
+        <button class="chip" onclick="quickAddCategory()">＋ New</button>
+      </div>
+
+      <label class="field-label">Trip (optional)</label>
+      <select id="fTripId" onchange="handleTripSelectChange(this)">
+        <option value="">No trip</option>
+        ${state.trips.map(t=>`<option value="${t.id}" ${tripId===t.id?"selected":""}>${esc(t.name)}</option>`).join("")}
+        <option value="__new__">＋ New trip…</option>
+      </select>
+
+      <label class="field-label">Notes</label>
+      <input id="fNotes" value="${esc(notes)}" placeholder="What was it for?">
+
+      <button class="btn-primary" id="submitExpenseBtn" ${draftScanning||savingExpense?"disabled":""}>${savingExpense ? "Saving…" : (exp?"Save changes":"Save expense")}</button>
+      ${exp ? `<button class="btn-ghost btn-danger" style="margin-top:10px" onclick="deleteExpense('${exp.id}')">Delete expense</button>` : ""}
+
+    </div>
+  </div>`;
+}
+
+function renderPhotoArea() {
+  if (draftPhoto) {
+    return `<div class="photo-wrap">
+      <img class="receipt-img" src="${draftPhoto}">
+      <button class="chip active retake-btn" onclick="document.getElementById('photoInput').click()">Retake</button>
+      ${draftScanning ? `<div class="scan-overlay">Reading receipt…</div>` : ""}
+    </div>`;
+  }
+  return `<button class="btn-ghost" style="padding:22px;margin-bottom:12px" onclick="document.getElementById('photoInput').click()">📷 Add receipt photo</button>`;
+}
+
+function pickCategory(c) { selectedCategory = c; document.querySelectorAll('#catRow .chip').forEach(el=>el.classList.toggle('active', el.dataset.cat===c)); }
+
+async function quickAddCategory() {
+  const name = prompt("New category name:");
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (allCategoryNames().some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+    pickCategory(trimmed);
+    return;
+  }
+  try {
+    const cat = await addCategoryRemote(trimmed);
+    state.categories.push(cat);
+    document.getElementById("catRow").innerHTML = allCategoryNames().map(c=>`<button class="chip ${trimmed===c?'active':''}" data-cat="${esc(c)}" onclick="pickCategory('${esc(c)}')">${esc(c)}</button>`).join("") + `<button class="chip" onclick="quickAddCategory()">＋ New</button>`;
+    selectedCategory = trimmed;
+    showToast("Category added");
+  } catch (e) { showToast("Couldn't add category: " + (e.message || "unknown error")); }
+}
+
+async function handleTripSelectChange(selectEl) {
+  if (selectEl.value !== "__new__") return;
+  const name = prompt("New trip name:");
+  if (!name || !name.trim()) { selectEl.value = ""; return; }
+  const trip = { id: uid(), name: name.trim(), start: "", end: "", purpose: "" };
+  try {
+    await upsertTripRemote(trip);
+    state.trips.unshift(trip);
+    const opt = document.createElement("option");
+    opt.value = trip.id; opt.textContent = trip.name;
+    selectEl.insertBefore(opt, selectEl.lastElementChild);
+    selectEl.value = trip.id;
+    showToast("Trip added");
+  } catch (e) { showToast("Couldn't add trip: " + (e.message || "unknown error")); selectEl.value = ""; }
+}
+
+async function handlePhotoFile(file) {
+  if (!file) return;
+  try {
+    const dataUrl = await compressImage(file, 900, 0.55);
+    draftPhoto = dataUrl;
+    document.getElementById("photoArea").innerHTML = renderPhotoArea();
+    draftScanning = true;
+    document.getElementById("photoArea").innerHTML = renderPhotoArea();
+    try {
+      const r = await scanReceipt(dataUrl);
+      await new Promise(resolve => setTimeout(resolve, 0));
+      if (r.vendor) document.getElementById("fVendor").value = r.vendor;
+      if (r.amount != null) document.getElementById("fAmount").value = r.amount;
+      if (r.date) document.getElementById("fDate").value = r.date;
+      if (r.category && CATEGORIES.includes(r.category)) pickCategory(r.category);
+      if (r.notes) document.getElementById("fNotes").value = r.notes;
+      showToastLocal("Receipt read — check the details");
+    } catch (e) {
+      showToast("Couldn't read the receipt — enter details manually");
+    }
+    draftScanning = false;
+    document.getElementById("photoArea").innerHTML = renderPhotoArea();
+  } catch { showToast("Couldn't load that photo"); }
+}
+
+async function submitExpense() {
+  const vendor = document.getElementById("fVendor").value.trim();
+  const amount = Number(document.getElementById("fAmount").value || 0);
+  const date = document.getElementById("fDate").value || todayISO();
+  const category = selectedCategory || (state.sheet.expense ? state.sheet.expense.category : "Meals");
+  const tripId = document.getElementById("fTripId").value;
+  const notes = document.getElementById("fNotes").value.trim();
+  if (!vendor && !amount) { showToast("Add at least a vendor or amount"); return; }
+  const exp = {
+    id: state.sheet.expense ? state.sheet.expense.id : uid(),
+    vendor, amount, date, category, tripId, notes, photo: draftPhoto || null,
+  };
+  savingExpense = true; render();
+  try {
+    await upsertExpenseRemote(exp);
+    const idx = state.expenses.findIndex(e => e.id === exp.id);
+    if (idx >= 0) state.expenses[idx] = exp; else state.expenses.unshift(exp);
+    selectedCategory = null; savingExpense = false;
+    state.sheet = null;
+    showToast(idx >= 0 ? "Expense updated" : "Expense saved");
+  } catch (e) {
+    savingExpense = false;
+    showToast("Couldn't save: " + (e.message || "unknown error"));
+    render();
+  }
+}
+
+async function deleteExpense(id) {
+  if (!confirm("Delete this expense and its receipt photo?")) return;
+  try {
+    await deleteExpenseRemote(id);
+    state.expenses = state.expenses.filter(e => e.id !== id);
+    state.sheet = null; state.detail = null;
+    showToast("Deleted");
+  } catch (e) { showToast("Couldn't delete: " + (e.message || "unknown error")); render(); }
+}
+
+// ---------- detail sheet ----------
+function openDetail(id) { state.detail = state.expenses.find(e=>e.id===id); render(); }
+function closeDetail() { state.detail = null; render(); }
+function editFromDetail() { const id = state.detail.id; state.detail = null; openExpenseSheet(id); }
+
+function renderDetailSheet() {
+  const e = state.detail;
+  return `
+  <div class="overlay" onclick="closeDetail()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-head">
+        <div class="sheet-title serif">${esc(e.vendor)||"Expense"}</div>
+        <button class="closebtn" onclick="closeDetail()">✕</button>
+      </div>
+      ${e.photo ? `<img class="receipt-img" src="${e.photo}">` : ""}
+      <div class="card" style="margin:0 0 12px">
+        ${[["Amount",fmt(e.amount),true],["Date",e.date,true],["Category",e.category],["Trip", e.tripId?tripName(e.tripId):"—"],["Notes",e.notes||"—"]].map(([k,v,m])=>`
+          <div class="leader"><span style="font-size:13px;font-weight:700;color:var(--muted)">${k}</span><div class="dots"></div><span style="font-size:15px;font-weight:600;text-align:right${m?';font-variant-numeric:tabular-nums':''}">${esc(String(v))}</span></div>
+        `).join("")}
+      </div>
+      <button class="btn-primary" onclick="editFromDetail()">Edit</button>
+      <button class="btn-ghost btn-danger" style="margin-top:10px" onclick="deleteExpense('${e.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+// ---------- trips ----------
+function tripTotal(id) { return state.expenses.filter(e=>e.tripId===id).reduce((s,e)=>s+Number(e.amount||0),0); }
+function tripCount(id) { return state.expenses.filter(e=>e.tripId===id).length; }
+
+function renderTripsTab() {
+  return `
+    <div style="margin:12px 12px 0"><button class="btn-primary" onclick="openTripSheet()">＋ New trip</button></div>
+    ${state.trips.length===0 ? `
+      <div class="empty">
+        <div class="empty-icon">⌖</div>
+        <div class="empty-title">No trips yet</div>
+        <div style="font-size:14px;margin-top:6px">Create a trip, then attach expenses to it when you add them.</div>
+      </div>` : state.trips.map(t => `
+      <div class="card">
+        <div style="display:flex;align-items:baseline;gap:8px;cursor:pointer" onclick="toggleTripOpen('${t.id}')">
+          <div style="font-weight:800;font-size:16px">${esc(t.name)}</div>
+          <div class="dots"></div>
+          <div class="mono" style="font-weight:700">${fmt(tripTotal(t.id))}</div>
+        </div>
+        <div style="font-size:12.5px;color:var(--muted);margin-top:4px">
+          <span class="mono">${t.start||"?"} → ${t.end||"?"}</span> · ${tripCount(t.id)} expense${tripCount(t.id)===1?"":"s"}
+        </div>
+        ${state.openTripId===t.id ? `
+          <div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
+            ${state.expenses.filter(e=>e.tripId===t.id).map(e=>`
+              <div class="leader" style="cursor:pointer" onclick="openDetail('${e.id}')">
+                <span style="font-size:14px;font-weight:600">${esc(e.vendor)||"Untitled"}</span>
+                <div class="dots"></div>
+                <span class="mono" style="font-size:14px;font-weight:700">${fmt(e.amount)}</span>
+              </div>`).join("") || `<div style="font-size:13.5px;color:#8B7F65">No expenses attached yet.</div>`}
+            <div class="row" style="margin-top:10px">
+              <button class="btn-ghost" style="padding:9px;font-size:13.5px" onclick="openAttachSheet('${t.id}')">＋ Attach expenses</button>
+              <button class="btn-ghost" style="padding:9px;font-size:13.5px" onclick="openTripSheet('${t.id}')">Edit trip</button>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button class="btn-ghost btn-danger" style="padding:9px;font-size:13.5px" onclick="deleteTrip('${t.id}')">Delete trip</button>
+            </div>
+          </div>` : ""}
+      </div>`).join("")}
+    ${state.attachSheet ? renderAttachSheet() : ""}
+  `;
+}
+function toggleTripOpen(id) { state.openTripId = state.openTripId===id ? null : id; render(); }
+
+function openAttachSheet(tripId) {
+  const checked = new Set(state.expenses.filter(e => e.tripId === tripId).map(e => e.id));
+  state.attachSheet = { tripId, checked, search: "" };
+  render();
+}
+function closeAttachSheet() { state.attachSheet = null; render(); }
+function toggleAttachChecked(id) {
+  const s = state.attachSheet.checked;
+  if (s.has(id)) s.delete(id); else s.add(id);
+  render();
+}
+function setAttachSearch(v) { state.attachSheet.search = v; render(); }
+
+async function saveAttachSheet() {
+  const { tripId, checked } = state.attachSheet;
+  const wasIn = new Set(state.expenses.filter(e => e.tripId === tripId).map(e => e.id));
+  const toAdd = [...checked].filter(id => !wasIn.has(id));
+  const toRemove = [...wasIn].filter(id => !checked.has(id));
+  try {
+    await Promise.all([
+      toAdd.length ? batchSetTripId(toAdd, tripId) : Promise.resolve(),
+      toRemove.length ? batchSetTripId(toRemove, null) : Promise.resolve(),
+    ]);
+    state.expenses.forEach(e => {
+      if (toAdd.includes(e.id)) e.tripId = tripId;
+      if (toRemove.includes(e.id)) e.tripId = "";
+    });
+    state.attachSheet = null;
+    showToast("Trip updated");
+  } catch (e) { showToast("Couldn't save: " + (e.message || "unknown error")); render(); }
+}
+
+function renderAttachSheet() {
+  const { tripId, checked, search } = state.attachSheet;
+  const trip = state.trips.find(t => t.id === tripId);
+  const list = state.expenses.filter(e => !search || ((e.vendor||"")+" "+(e.notes||"")).toLowerCase().includes(search.toLowerCase()));
+  return `
+  <div class="overlay" onclick="closeAttachSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-head">
+        <div class="sheet-title serif">Attach to ${esc(trip?trip.name:"trip")}</div>
+        <button class="closebtn" onclick="closeAttachSheet()">✕</button>
+      </div>
+      <input id="attachSearch" placeholder="Search expenses" value="${esc(search)}">
+      <div style="max-height:50vh;overflow-y:auto">
+        ${list.length===0 ? `<div style="font-size:13.5px;color:var(--muted);padding:10px 0">No expenses found.</div>` : list.map(e => `
+          <div class="leader" style="cursor:pointer" onclick="toggleAttachChecked('${e.id}')">
+            <span style="font-size:15px">${checked.has(e.id) ? "☑" : "☐"}</span>
+            <span style="font-size:14.5px;font-weight:600">${esc(e.vendor)||"Untitled"}</span>
+            <div class="dots"></div>
+            <span class="mono" style="font-size:14px;font-weight:700">${fmt(e.amount)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <button class="btn-primary" style="margin-top:14px" onclick="saveAttachSheet()">Save (${checked.size} attached)</button>
+    </div>
+  </div>`;
+}
+
+function openTripSheet(id) { const trip = id ? state.trips.find(t=>t.id===id) : null; state.tripSheet = { trip }; render(); }
+function closeTripSheet() { state.tripSheet = null; render(); }
+
+function renderTripSheet() {
+  const t = state.tripSheet.trip;
+  return `
+  <div class="overlay" onclick="closeTripSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-title serif" style="margin-bottom:14px">${t?"Edit trip":"New trip"}</div>
+      <label class="field-label">Trip name</label>
+      <input id="tName" value="${t?esc(t.name):''}" placeholder="e.g. Miami shoot, March">
+      <div class="row">
+        <div style="flex:1"><label class="field-label">Start</label><input id="tStart" type="date" value="${t?t.start||'':''}"></div>
+        <div style="flex:1"><label class="field-label">End</label><input id="tEnd" type="date" value="${t?t.end||'':''}"></div>
+      </div>
+      <label class="field-label">Business purpose</label>
+      <input id="tPurpose" value="${t?esc(t.purpose||''):''}" placeholder="Why the trip was for business">
+      <button class="btn-primary" id="submitTripBtn">${t?"Save changes":"Create trip"}</button>
+    </div>
+  </div>`;
+}
+async function submitTrip(id) {
+  const name = document.getElementById("tName").value.trim();
+  if (!name) return;
+  const start = document.getElementById("tStart").value;
+  const end = document.getElementById("tEnd").value;
+  const purpose = document.getElementById("tPurpose").value.trim();
+  const trip = { id: id || uid(), name, start, end, purpose };
+  document.getElementById("submitTripBtn").disabled = true;
+  try {
+    await upsertTripRemote(trip);
+    const idx = state.trips.findIndex(t=>t.id===trip.id);
+    if (idx>=0) state.trips[idx]=trip; else state.trips.unshift(trip);
+    state.tripSheet = null;
+    showToast(idx>=0?"Trip updated":"Trip created");
+  } catch (e) {
+    document.getElementById("submitTripBtn").disabled = false;
+    showToast("Couldn't save trip: " + (e.message || "unknown error"));
+  }
+}
+async function deleteTrip(id) {
+  const t = state.trips.find(x=>x.id===id);
+  if (!confirm(`Delete trip "${t.name}"? Expenses will be kept, just unassigned.`)) return;
+  try {
+    await deleteTripRemote(id);
+    state.trips = state.trips.filter(x=>x.id!==id);
+    state.openTripId = null;
+    showToast("Trip deleted");
+  } catch (e) { showToast("Couldn't delete: " + (e.message || "unknown error")); render(); }
+}
+
+// ---------- deposits ----------
+function openDepositSheet(id) {
+  const dep = id ? state.deposits.find(d=>d.id===id) : null;
+  state.depositSheet = { deposit: dep };
+  render();
+}
+function closeDepositSheet() { state.depositSheet = null; render(); }
+
+function renderDepositSheet() {
+  const d = state.depositSheet.deposit;
+  return `
+  <div class="overlay" onclick="closeDepositSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-head">
+        <div class="sheet-title serif">${d ? "Edit deposit" : "New deposit"}</div>
+        <button class="closebtn" onclick="closeDepositSheet()">✕</button>
+      </div>
+      <label class="field-label">Source</label>
+      <input id="dSource" value="${d?esc(d.source):''}" placeholder="e.g. OnlyFans payout, tip, sponsor">
+      <div class="row">
+        <div style="flex:1"><label class="field-label">Amount</label><input id="dAmount" class="mono" type="number" inputmode="decimal" step="0.01" value="${d?d.amount:''}" placeholder="0.00"></div>
+        <div style="flex:1"><label class="field-label">Date</label><input id="dDate" type="date" value="${d?d.date:todayISO()}"></div>
+      </div>
+      <label class="field-label">Notes</label>
+      <input id="dNotes" value="${d?esc(d.notes||''):''}" placeholder="Optional">
+      <button class="btn-primary" id="submitDepositBtn">${d ? "Save changes" : "Save deposit"}</button>
+      ${d ? `<button class="btn-ghost btn-danger" style="margin-top:10px" onclick="deleteDeposit('${d.id}')">Delete deposit</button>` : ""}
+    </div>
+  </div>`;
+}
+async function submitDeposit(id) {
+  const source = document.getElementById("dSource").value.trim();
+  const amount = Number(document.getElementById("dAmount").value || 0);
+  const date = document.getElementById("dDate").value || todayISO();
+  const notes = document.getElementById("dNotes").value.trim();
+  if (!source && !amount) { showToast("Add at least a source or amount"); return; }
+  const dep = { id: id || uid(), source, amount, date, notes };
+  document.getElementById("submitDepositBtn").disabled = true;
+  try {
+    await upsertDepositRemote(dep);
+    const idx = state.deposits.findIndex(x=>x.id===dep.id);
+    if (idx>=0) state.deposits[idx]=dep; else state.deposits.unshift(dep);
+    state.depositSheet = null;
+    showToast(idx>=0?"Deposit updated":"Deposit saved");
+  } catch (e) {
+    document.getElementById("submitDepositBtn").disabled = false;
+    showToast("Couldn't save deposit: " + (e.message || "unknown error"));
+  }
+}
+async function deleteDeposit(id) {
+  if (!confirm("Delete this deposit?")) return;
+  try {
+    await deleteDepositRemote(id);
+    state.deposits = state.deposits.filter(x=>x.id!==id);
+    state.depositSheet = null;
+    showToast("Deposit deleted");
+  } catch (e) { showToast("Couldn't delete: " + (e.message || "unknown error")); render(); }
+}
+
+// ---------- summary ----------
+function monetizationChartSVG(yearDeposits, yearExpenses) {
+  const MONTH_ABBR = ["J","F","M","A","M","J","J","A","S","O","N","D"];
+  const income = new Array(12).fill(0);
+  const expense = new Array(12).fill(0);
+  yearDeposits.forEach(d => { const m = Number((d.date||"").slice(5,7)) - 1; if (m>=0&&m<12) income[m] += Number(d.amount||0); });
+  yearExpenses.forEach(e => { const m = Number((e.date||"").slice(5,7)) - 1; if (m>=0&&m<12) expense[m] += Number(e.amount||0); });
+  const net = income.map((v,i) => v - expense[i]);
+  const maxAbs = Math.max(1, ...net.map(v => Math.abs(v)));
+  const w = 320, h = 130, padTop = 8, padBottom = 16;
+  const midY = padTop + (h - padTop - padBottom) / 2;
+  const gap = (w - 16) / 12;
+  const barW = gap * 0.6;
+  const scale = ((h - padTop - padBottom) / 2) / maxAbs;
+  let bars = "", labels = "";
+  net.forEach((v, i) => {
+    const x = 8 + i * gap + (gap - barW) / 2;
+    const barH = Math.max(Math.abs(v) * scale, v !== 0 ? 1.5 : 0);
+    const y = v >= 0 ? midY - barH : midY;
+    const color = v >= 0 ? "#A85D22" : "#C0522A";
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="2" fill="${color}"></rect>`;
+    labels += `<text x="${(x+barW/2).toFixed(1)}" y="${h-3}" font-size="8" text-anchor="middle" fill="#8B7F65">${MONTH_ABBR[i]}</text>`;
+  });
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:130px;display:block;margin-top:8px">
+    <line x1="8" y1="${midY.toFixed(1)}" x2="${w-8}" y2="${midY.toFixed(1)}" stroke="#E6DCC5" stroke-width="1"></line>
+    ${bars}${labels}
+  </svg>`;
+}
+
+function renderSummaryTab() {
+  const years = [...new Set(state.expenses.map(e=>(e.date||"").slice(0,4)).concat(state.deposits.map(d=>(d.date||"").slice(0,4))).filter(Boolean))].sort().reverse();
+  if (!state.summaryYear) state.summaryYear = years[0] || String(new Date().getFullYear());
+  const year = state.summaryYear;
+  const yearExp = state.expenses.filter(e => (e.date||"").startsWith(year));
+  const yearDep = state.deposits.filter(d => (d.date||"").startsWith(year));
+  const total = yearExp.reduce((s,e)=>s+Number(e.amount||0),0);
+  const totalIncome = yearDep.reduce((s,d)=>s+Number(d.amount||0),0);
+  const netTotal = totalIncome - total;
+  const byCat = allCategoryNames().map(c => ({ cat:c, total: yearExp.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.amount||0),0), n: yearExp.filter(e=>e.category===c).length })).filter(r=>r.n>0).sort((a,b)=>b.total-a.total);
+
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <label class="field-label" style="margin:0">Tax year</label>
+        <select style="width:auto;margin:0;padding:6px 10px;font-weight:700" onchange="setSummaryYear(this.value)">
+          ${(years.length?years:[year]).map(y=>`<option value="${y}" ${y===year?"selected":""}>${y}</option>`).join("")}
+        </select>
+      </div>
+      <div class="mono" style="font-size:34px;font-weight:800;margin-top:8px">${fmt(total)}</div>
+      <div style="font-size:13px;color:var(--muted)">${yearExp.length} expenses recorded in ${year}</div>
+    </div>
+    <div class="card">
+      <label class="field-label">Monetization</label>
+      <div class="row" style="margin-top:6px;margin-bottom:2px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--muted)">Income</div>
+          <div class="mono" style="font-size:19px;font-weight:800;color:var(--accent-deep)">${fmt(totalIncome)}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--muted)">Expenses</div>
+          <div class="mono" style="font-size:19px;font-weight:800">${fmt(total)}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--muted)">Net</div>
+          <div class="mono" style="font-size:19px;font-weight:800;color:${netTotal>=0?'var(--accent-deep)':'#C0522A'}">${netTotal>=0?'':'-'}${fmt(Math.abs(netTotal))}</div>
+        </div>
+      </div>
+      ${monetizationChartSVG(yearDep, yearExp)}
+      <div class="small-note" style="margin-top:2px">Bars above the line are months where income beat expenses; below the line, the reverse.</div>
+    </div>
+    <div class="card">
+      <label class="field-label">By category</label>
+      ${byCat.length===0 ? `<div style="font-size:14px;color:#8B7F65">Nothing recorded for ${year} yet.</div>` : byCat.map(r=>`
+        <div class="leader"><span style="font-size:14.5px;font-weight:700">${esc(r.cat)}</span><div class="dots"></div><span class="mono" style="font-weight:700">${fmt(r.total)}</span></div>
+        <div class="bar-bg"><div class="bar-fg" style="width:${total?(r.total/total*100):0}%;background:${getCatColor(r.cat)}"></div></div>
+      `).join("")}
+    </div>
+    <div class="card">
+      <label class="field-label">By trip</label>
+      ${state.trips.length===0 ? `<div style="font-size:14px;color:#8B7F65">No trips created yet.</div>` : state.trips.map(t=>{
+        const tt = yearExp.filter(e=>e.tripId===t.id).reduce((s,e)=>s+Number(e.amount||0),0);
+        if (!tt) return "";
+        return `<div class="leader"><span style="font-size:14.5px;font-weight:700">${esc(t.name)}</span><div class="dots"></div><span class="mono" style="font-weight:700">${fmt(tt)}</span></div>`;
+      }).join("")}
+    </div>
+    <div style="margin:12px">
+      <button class="btn-primary" onclick="exportCSV(state.expenses.filter(e=>(e.date||'').startsWith('${year}')), 'expenses-${year}.csv')">Export ${year} for taxes (CSV)</button>
+      <div class="small-note">The CSV opens in Excel or Google Sheets — handy to hand to a tax preparer.</div>
+    </div>
+    <div class="card">
+      <label class="field-label">Categories</label>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Built-in categories always show up when adding an expense. Add your own below for anything specific to your business.</div>
+      ${state.categories.length===0 ? `<div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">No custom categories yet.</div>` : state.categories.map(c => `
+        <div class="leader">
+          <span style="font-size:14.5px;font-weight:600">${esc(c.name)}</span>
+          <div class="dots"></div>
+          <button class="link-btn" style="color:#C0522A" onclick="removeCategory('${c.id}')">Remove</button>
+        </div>`).join("")}
+      <button class="btn-ghost" style="margin-top:8px" onclick="quickAddCategoryStandalone()">＋ Add category</button>
+    </div>
+    <div class="card">
+      <label class="field-label">Account</label>
+      <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Signed in as ${esc(state.session.email||"")}. Your data is stored securely in the cloud — clearing this browser will never delete it.</div>
+      <a href="https://thecreatorcockpit.com/" class="btn-ghost" style="display:block;box-sizing:border-box;text-align:center;text-decoration:none;margin-bottom:8px">Open Creator Cockpit</a>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+  `;
+}
+function setSummaryYear(y) { state.summaryYear = y; render(); }
+
+async function quickAddCategoryStandalone() {
+  const name = prompt("New category name:");
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (allCategoryNames().some(c => c.toLowerCase() === trimmed.toLowerCase())) { showToast("That category already exists"); return; }
+  try {
+    const cat = await addCategoryRemote(trimmed);
+    state.categories.push(cat);
+    showToast("Category added");
+    render();
+  } catch (e) { showToast("Couldn't add category: " + (e.message || "unknown error")); }
+}
+async function removeCategory(id) {
+  const cat = state.categories.find(c => c.id === id);
+  if (!cat) return;
+  if (!confirm(`Remove "${cat.name}"? Expenses already using it will keep it, but it won't show up as a quick-pick anymore.`)) return;
+  try {
+    await deleteCategoryRemote(id);
+    state.categories = state.categories.filter(c => c.id !== id);
+    showToast("Category removed");
+    render();
+  } catch { showToast("Couldn't remove — check your connection"); }
+}
+
+// ---------- wiring ----------
+function wireDynamicHandlers() {
+  const photoInput = document.getElementById("photoInput");
+  if (photoInput) photoInput.onchange = (e) => handlePhotoFile(e.target.files[0]);
+
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.oninput = (e) => { state.search = e.target.value; };
+    searchInput.onblur = () => render();
+    searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
+  }
+
+  const submitBtn = document.getElementById("submitExpenseBtn");
+  if (submitBtn) submitBtn.onclick = submitExpense;
+
+  const submitTripBtn = document.getElementById("submitTripBtn");
+  if (submitTripBtn) submitTripBtn.onclick = () => submitTrip(state.tripSheet.trip ? state.tripSheet.trip.id : "");
+
+  const submitDepositBtn = document.getElementById("submitDepositBtn");
+  if (submitDepositBtn) submitDepositBtn.onclick = () => submitDeposit(state.depositSheet.deposit ? state.depositSheet.deposit.id : "");
+
+  const attachSearch = document.getElementById("attachSearch");
+  if (attachSearch) {
+    attachSearch.oninput = (e) => { state.attachSheet.search = e.target.value; };
+    attachSearch.onblur = () => render();
+    attachSearch.addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
+  }
+}
+
+// expose needed globals
+window.setTab = setTab;
+window.openExpenseSheet = openExpenseSheet;
+window.closeSheet = closeSheet;
+window.pickCategory = pickCategory;
+window.deleteExpense = deleteExpense;
+window.openDetail = openDetail;
+window.closeDetail = closeDetail;
+window.editFromDetail = editFromDetail;
+window.toggleTripOpen = toggleTripOpen;
+window.openTripSheet = openTripSheet;
+window.closeTripSheet = closeTripSheet;
+window.deleteTrip = deleteTrip;
+window.setSummaryYear = setSummaryYear;
+window.toggleFilters = toggleFilters;
+window.setFilter = setFilter;
+window.clearFilters = clearFilters;
+window.exportCSV = exportCSV;
+window.state = state;
+window.filteredExpenses = filteredExpenses;
+window.signOut = signOut;
+window.quickAddCategory = quickAddCategory;
+window.handleTripSelectChange = handleTripSelectChange;
+window.quickAddCategoryStandalone = quickAddCategoryStandalone;
+window.removeCategory = removeCategory;
+window.openAttachSheet = openAttachSheet;
+window.closeAttachSheet = closeAttachSheet;
+window.toggleAttachChecked = toggleAttachChecked;
+window.saveAttachSheet = saveAttachSheet;
+window.setMoneyView = setMoneyView;
+window.openDepositSheet = openDepositSheet;
+window.closeDepositSheet = closeDepositSheet;
+window.deleteDeposit = deleteDeposit;
+
+// ---- password recovery link detection ----
+(function checkRecoveryLink() {
+  var hash = location.hash || "";
+  if (hash.indexOf("type=recovery") === -1) return;
+  var params = new URLSearchParams(hash.replace(/^#/, ""));
+  var accessToken = params.get("access_token");
+  var refreshToken = params.get("refresh_token");
+  var expiresIn = params.get("expires_in");
+  if (!accessToken) return;
+  state.recoveryToken = accessToken;
+  state.recoverySession = {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    expires_at: Date.now() + (Number(expiresIn || 3600) * 1000),
+    email: state.session ? state.session.email : "",
+  };
+  state.authMode = "recovery";
+  state.session = null; // show "set new password" before entering the app
+  history.replaceState(null, "", location.pathname + location.search);
+})();
+
+render();
+</script>
+</body>
+</html>
